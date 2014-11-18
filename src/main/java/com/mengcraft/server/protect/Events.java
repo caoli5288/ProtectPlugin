@@ -20,6 +20,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 
+import com.mengcraft.server.Protect;
+
 public class Events implements Listener, Runnable {
 	private final Set<String> reqeustNames;
 	private final Set<String> requestIps;
@@ -27,6 +29,7 @@ public class Events implements Listener, Runnable {
 	public Events() {
 		this.requestIps = new HashSet<String>();
 		this.reqeustNames = new HashSet<String>();
+		Bukkit.getServer().getPluginManager().registerEvents(this, Protect.get());
 	}
 
 	@Override
