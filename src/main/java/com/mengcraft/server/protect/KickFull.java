@@ -1,0 +1,35 @@
+package com.mengcraft.server.protect;
+
+import java.util.Random;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent.Result;
+
+public class KickFull implements Listener {
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onLogin(PlayerLoginEvent event) {
+		if (event.getResult().equals(Result.ALLOWED)) {
+			int max = Bukkit.getMaxPlayers();
+			Player[] online = Bukkit.getOnlinePlayers();
+			if (online.length > max) {
+				randomKick(online);
+			}
+		}
+	}
+
+	private void randomKick(Player[] online) {
+		int i = new Random().nextInt(online.length);
+		Player kicked = online[i].hasPermission("essentials.joinfullserver") ? null : online[i];
+		if (kicked != null) {
+			kicked.kickPlayer("服务器人已经满你被挤下线了");
+		} else {
+			randomKick(online);
+		}
+	}
+}

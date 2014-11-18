@@ -1,0 +1,18 @@
+restart:
+  use: true
+  value: 24
+spawnmob:
+  use: true
+  value: 16
+joinbot:
+  use: true
+  value: 60
+saveworld:
+  use: true
+  value: 60
+unchunk:
+  use: true
+  value: 10
+keepfarm:
+  use: true
+  value: 0
