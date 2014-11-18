@@ -1,14 +1,17 @@
 package com.mengcraft.server.protect;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 
@@ -27,9 +30,24 @@ public class Events implements Listener, Runnable {
 		getRequestName().clear();
 	}
 
+	@EventHandler
+	public void onCreatureSpawn(CreatureSpawnEvent event) {
+		List<Entity> entities = event.getEntity().getNearbyEntities(16, 16, 16);
+		int count = 0;
+		for (Entity entity : entities) {
+			if (entity.getType().equals(event.getEntity().getType())) {
+				count = count + 1;
+			}
+		}
+		if (count > 16) {
+			event.setCancelled(true);
+			// System.out.println("Events.OnCreatureSpawn.Cancelled");
+		}
+	}
+
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onLogin(PlayerLoginEvent event) {
-//		System.out.println("Events.OnLogin.New."+event.getAddress().getHostAddress());
+		// System.out.println("Events.OnLogin.New."+event.getAddress().getHostAddress());
 		if (event.getResult().equals(Result.ALLOWED)) {
 			if (getRequestIps().contains(event.getAddress().getHostAddress())) {
 				event.setResult(Result.KICK_OTHER);

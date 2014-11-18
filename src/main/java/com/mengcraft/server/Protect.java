@@ -21,7 +21,9 @@ public class Protect extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(e, get());
 		getServer().getScheduler().runTaskTimer(get(), e, 1200, 1200);
 		getServer().getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
-		getLogger().info("你的服务器已经被保护");
+		getLogger().info("防止爆服器爆服已开启");
+		getLogger().info("防止服务器过载已开启");
+		getLogger().info("防止密集养殖场已开启");
 		getLogger().info("欢迎使用梦梦家服务器");
 		try {
 			new Metrics(get()).start();
