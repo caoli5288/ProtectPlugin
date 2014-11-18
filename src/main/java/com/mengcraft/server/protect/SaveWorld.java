@@ -14,27 +14,48 @@ public class SaveWorld implements Runnable {
 		setX(0);
 	}
 
+	/**
+	 * unload chunks must be in main thread!
+	 */
 	@Override
 	public void run() {
-		List<World> worlds = Bukkit.getServer().getWorlds();
-		if (getX() < worlds.size()) {
-			worlds.get(getX()).save();
-			Chunk[] chunks = worlds.get(getX()).getLoadedChunks();
-			for (Chunk chunk : chunks) {
-				chunk.unload(true, true);
-			}
-			setX(getX() + 1);
-		} else {
+		List<World> worlds = Bukkit.getWorlds();
+		if (getX() >= worlds.size()) {
 			setX(0);
-			run();
 		}
+		Chunk[] chunks = worlds.get(getX()).getLoadedChunks();
+		for (Chunk chunk : chunks) {
+			chunk.unload(true, true);
+		}
+		new Thread(new SaveWorldTask(getX())).start();
+		setX(getX() + 1);
 	}
 
-	public int getX() {
+	private int getX() {
 		return x;
 	}
 
-	public void setX(int x) {
+	private void setX(int x) {
 		this.x = x;
+	}
+
+	private class SaveWorldTask implements Runnable {
+		private final int count;
+
+		public SaveWorldTask(int x) {
+			this.count = x;
+		}
+
+		@Override
+		public void run() {
+			Bukkit.getWorlds().get(getCount()).save();
+			if (getCount() < 1) {
+				Bukkit.savePlayers();
+			}
+		}
+
+		public int getCount() {
+			return count;
+		}
 	}
 }
