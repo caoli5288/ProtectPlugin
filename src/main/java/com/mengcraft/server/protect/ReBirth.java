@@ -1,4 +1,4 @@
-package com.mengcraft.server;
+package com.mengcraft.server.protect;
 
 import java.io.File;
 
