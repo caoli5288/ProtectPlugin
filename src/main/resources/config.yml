@@ -1,18 +1,53 @@
 restart:
+  # This option restart your server automatic
+  # It act after {value} hours
+  # It stop your server if it empty in 5 minute
+  # WARN: Need a loop script to function
+  # if you need not a loop script please disable it
   use: true
   value: 24
+  
 spawnmob:
+  # This option protect mob farm lag your server
+  # {value} same mobs allowed to spawn in a range
+  # Please don't modify it if not necessary
   use: true
   value: 16
+  
 joinbot:
+  # This option protect joinbot crash your server
+  # It allow 30 player login in {value} second
+  # It allow a same IP login one time in {value} second
+  # Please don't modify it if not necessary
   use: true
   value: 60
+  
 saveworld:
+  # This option save your world data every {value} second
+  # Disable "AutoSave" and "AutoSaveWorld" automatic
+  # This value must be greater than 0
+  # Please don't modify it if not necessary
   use: true
   value: 60
+  
 unchunk:
+  # This option unload loaded chunk every {value} minute
+  # This value must be greater than 0
+  # Please don't modify it if not necessary
   use: true
   value: 10
+  
 keepfarm:
+  # This option protect your farm from jumper
+  # This value just for fun :) not necessary
   use: true
   value: 0
+  
+spigot:
+  # This option modify your spigot.yml if exist
+  # Modify entity-activation-range to get performance
+  # This value must be greater than 0 
+  # Lower get better performance
+  # Please don't modify it if not necessary
+  use: true
+  value: 4
