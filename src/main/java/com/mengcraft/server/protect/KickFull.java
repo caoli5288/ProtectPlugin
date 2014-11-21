@@ -16,9 +16,8 @@ public class KickFull implements Listener {
 	public void onLogin(PlayerLoginEvent event) {
 		if (event.getResult().equals(Result.ALLOWED)) {
 			int max = Bukkit.getMaxPlayers();
-			Player[] online = Bukkit.getOnlinePlayers();
-			if (online.length > max) {
-				randomKick(online);
+			while (Bukkit.getOnlinePlayers().length > max) {
+				randomKick(Bukkit.getOnlinePlayers());
 			}
 		}
 	}
