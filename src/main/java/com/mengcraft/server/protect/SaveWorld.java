@@ -1,5 +1,6 @@
 package com.mengcraft.server.protect;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -87,7 +88,8 @@ public class SaveWorld implements Runnable {
 
 		@Override
 		public void run() {
-			Bukkit.getWorlds().get(getCount()).save();
+			List<World> temp = new ArrayList<World>(Bukkit.getWorlds());
+			temp.get(getCount()).save();
 			if (getCount() < 1) {
 				Bukkit.savePlayers();
 			}
