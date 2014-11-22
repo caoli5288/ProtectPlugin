@@ -28,7 +28,7 @@ public class KickFull implements Listener {
 		if (kicked != null) {
 			kicked.kickPlayer("服务器人已经满你被挤下线了");
 		} else {
-			randomKick(online);
+			online[0].kickPlayer("服务器人已经满你被挤下线了");
 		}
 	}
 }
