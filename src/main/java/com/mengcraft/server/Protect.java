@@ -7,7 +7,9 @@ import org.bukkit.command.defaults.SaveOffCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
+import com.mengcraft.server.protect.CheckFree;
 import com.mengcraft.server.protect.JoinBot;
+import com.mengcraft.server.protect.JoinWarn;
 import com.mengcraft.server.protect.KeepFarm;
 import com.mengcraft.server.protect.KickFull;
 import com.mengcraft.server.protect.ModifySpigot;
@@ -66,6 +68,8 @@ public class Protect extends JavaPlugin {
 		
 		
 		Bukkit.getPluginManager().registerEvents(new KickFull(), get());
+		Bukkit.getPluginManager().registerEvents(new JoinWarn(), this);
+		Bukkit.getScheduler().runTaskTimer(this, CheckFree.get(), 0, 36000);
 		getServer().getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 		getLogger().info("防止服务器过载已开启");
 
