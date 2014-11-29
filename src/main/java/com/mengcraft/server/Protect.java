@@ -69,7 +69,7 @@ public class Protect extends JavaPlugin {
 		
 		Bukkit.getPluginManager().registerEvents(new KickFull(), get());
 		Bukkit.getPluginManager().registerEvents(new JoinWarn(), this);
-		Bukkit.getScheduler().runTaskTimer(this, CheckFree.get(), 0, 36000);
+		Bukkit.getScheduler().runTaskTimer(this, CheckFree.get(), 0, 18000);
 		getServer().getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 		getLogger().info("防止服务器过载已开启");
 
