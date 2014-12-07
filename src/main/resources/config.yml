@@ -39,14 +39,11 @@ unchunk:
   
 keepfarm:
   # This option protect your farm from jumper
-  # This value just for fun :) not necessary
   use: true
-  value: 0
   
 explosion:
   # This option prevent remove block from a explosion
   use:true
-  value: 0
   
 spigot:
   # This option modify your spigot.yml if exist
