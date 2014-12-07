@@ -43,6 +43,11 @@ keepfarm:
   use: true
   value: 0
   
+explosion:
+  # This option prevent remove block from a explosion
+  use:true
+  value: 0
+  
 spigot:
   # This option modify your spigot.yml if exist
   # Modify entity-activation-range to get performance

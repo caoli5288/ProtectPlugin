@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
 import com.mengcraft.server.protect.CheckFree;
+import com.mengcraft.server.protect.Explosion;
 import com.mengcraft.server.protect.JoinBot;
 import com.mengcraft.server.protect.JoinWarn;
 import com.mengcraft.server.protect.KeepFarm;
@@ -65,7 +66,10 @@ public class Protect extends JavaPlugin {
 			Bukkit.getScheduler().runTask(get(), new ModifySpigot(value));
 			getLogger().info("优化Spigot配置已开启");
 		}
-		
+		if (getConfig().getBoolean("explosion.use", true)) {
+			Bukkit.getPluginManager().registerEvents(new Explosion(), this);
+			getLogger().info("防止爆炸毁地图已开启");
+		}
 		
 		Bukkit.getPluginManager().registerEvents(new KickFull(), get());
 		Bukkit.getPluginManager().registerEvents(new JoinWarn(), this);
