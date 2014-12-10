@@ -53,3 +53,5 @@ spigot:
   # Please don't modify it if not necessary
   use: true
   value: 4
+
+version: 0.2.1

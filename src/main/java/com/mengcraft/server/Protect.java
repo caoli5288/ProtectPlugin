@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
 import com.mengcraft.server.protect.CheckFree;
+import com.mengcraft.server.protect.Commands;
 import com.mengcraft.server.protect.Explosion;
 import com.mengcraft.server.protect.JoinBot;
 import com.mengcraft.server.protect.KeepFarm;
@@ -30,6 +31,8 @@ public class Protect extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		getCommand("protect").setExecutor(new Commands());
+		
 		if (getConfig().getBoolean("restart.use", true)) {
 			long delay = getConfig().getLong("restart.value", 24) * 72000;
 			Bukkit.getScheduler().runTaskTimer(get(), new Restart(), delay, 6000);

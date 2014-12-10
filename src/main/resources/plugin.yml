@@ -3,9 +3,9 @@ version: ${project.version}
 main: com.mengcraft.server.Protect
 commands:
   protect:
-    description: admin command for this
+    description: Admin command for this.
     permission: server.admin
 permissions:
   server.admin:
-     description: admin permission for this
+     description: Admin permission for this.
      default: op
