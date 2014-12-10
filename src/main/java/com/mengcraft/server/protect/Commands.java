@@ -62,6 +62,7 @@ public class Commands implements CommandExecutor {
 		int total = 0;
 		for (World world : Bukkit.getWorlds()) {
 			int size = world.getLoadedChunks().length;
+			total = total + size;
 			messages.add(ChatColor.GOLD + world.getName() + ": " + size);
 		}
 		messages.add(ChatColor.GOLD + "Total: " + total);
