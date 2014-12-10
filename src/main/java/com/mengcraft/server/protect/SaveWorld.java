@@ -89,13 +89,9 @@ public class SaveWorld implements Runnable {
 		@Override
 		public void run() {
 			List<World> temp = new ArrayList<World>(Bukkit.getWorlds());
-			try {
-				temp.get(getCount()).save();
-				if (getCount() < 1) {
-					Bukkit.savePlayers();
-				}
-			} catch (Exception e) {
-				run();
+			temp.get(getCount()).save();
+			if (getCount() < 1) {
+				Bukkit.savePlayers();
 			}
 		}
 
