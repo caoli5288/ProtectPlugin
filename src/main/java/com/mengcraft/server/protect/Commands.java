@@ -21,15 +21,38 @@ public class Commands implements CommandExecutor {
 		if (args.length < 1) {
 			sender.sendMessage(getPluginInfo());
 		} else if (args.length < 2) {
-			
+
 		} else if (args.length < 3) {
 			if (args[0].equals("info")) {
 				if (args[1].equals("entity")) {
 					sender.sendMessage(getEntityInfo());
 				}
+			} else if (args.equals("purge")) {
+				sender.sendMessage(purgeEntity(args[1]));
 			}
 		}
 		return true;
+	}
+
+	private String purgeEntity(String typeName) {
+		int total = 0;
+		for (World world : Bukkit.getWorlds()) {
+			for (Entity entity : world.getEntities()) {
+				if (entity.getType().name().equals(typeName)) {
+					int rate = 0;
+					for (Entity near : entity.getNearbyEntities(16, 16, 16)) {
+						if (near.getType().equals(entity.getType())) {
+							rate = rate + 1;
+						}
+					}
+					if (rate > 16) {
+						entity.remove();
+						total = total + 1;
+					}
+				}
+			}
+		}
+		return new String(ChatColor.GOLD + "Remove entity " + typeName + " number: " + total);
 	}
 
 	private String[] getEntityInfo() {
@@ -55,10 +78,11 @@ public class Commands implements CommandExecutor {
 		int size = messages.size();
 		return messages.toArray(new String[size]);
 	}
-	
+
 	private String[] getPluginInfo() {
 		String[] strings = new String[] {
-				ChatColor.GOLD + "/protect info entity"
+				ChatColor.GOLD + "/protect info entity",
+				ChatColor.GOLD + "/protect purge [ENTITY_TYPE]"
 		};
 		return strings;
 	}
