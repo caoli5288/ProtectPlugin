@@ -71,13 +71,18 @@ public class Commands implements CommandExecutor {
 	}
 
 	private String purgeChunk() {
-		int value = 0;
+		int valueBefore = 0;
+		int valueAfter = 0;
 		for (World world : Bukkit.getWorlds()) {
-			for (Chunk chunk : world.getLoadedChunks()) {
-				value = chunk.unload(true, true) ? value + 1 : value;
+			Chunk[] chunks = world.getLoadedChunks();
+			valueBefore = valueBefore + chunks.length;
+			for (Chunk chunk : chunks) {
+				chunk.unload(true, true);
 			}
+			valueAfter = valueAfter + world.getLoadedChunks().length;
 		}
-		return new String(ChatColor.GOLD + "Purge chunk number: " + value);
+		int valueFinal = valueBefore - valueAfter;
+		return new String(ChatColor.GOLD + "Purge chunk number: " + valueFinal);
 	}
 
 	private String purgeEntity(String typeName) {
