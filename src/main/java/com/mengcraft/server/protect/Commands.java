@@ -27,7 +27,7 @@ public class Commands implements CommandExecutor {
 				if (args[1].equals("entity")) {
 					sender.sendMessage(getEntityInfo());
 				}
-			} else if (args.equals("purge")) {
+			} else if (args[0].equals("purge")) {
 				sender.sendMessage(purgeEntity(args[1]));
 			}
 		}
@@ -35,6 +35,9 @@ public class Commands implements CommandExecutor {
 	}
 
 	private String purgeEntity(String typeName) {
+		if (typeName.equals("PLAYER")) {
+			return new String(ChatColor.GOLD + "You can not purge player entity"); 
+		}
 		int total = 0;
 		for (World world : Bukkit.getWorlds()) {
 			for (Entity entity : world.getEntities()) {
@@ -52,7 +55,7 @@ public class Commands implements CommandExecutor {
 				}
 			}
 		}
-		return new String(ChatColor.GOLD + "Remove entity " + typeName + " number: " + total);
+		return new String(ChatColor.GOLD + "Purge entity " + typeName + " number: " + total);
 	}
 
 	private String[] getEntityInfo() {
