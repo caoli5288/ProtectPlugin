@@ -19,10 +19,10 @@ public class Commands implements CommandExecutor {
 
 	private String[] getPluginInfo() {
 		String[] strings = new String[] {
-				ChatColor.GOLD + "/protect info entity",
-				ChatColor.GOLD + "/protect info chunk",
-				ChatColor.GOLD + "/protect purge entity [ENTITY_TYPE]",
-				ChatColor.GOLD + "/protect purge chunk"
+				ChatColor.GOLD + "/protect entity info",
+				ChatColor.GOLD + "/protect entity purge [ENTITY_TYPE]",
+				ChatColor.GOLD + "/protect chunk info",
+				ChatColor.GOLD + "/protect chunk purge"
 		};
 		return strings;
 	}
@@ -31,28 +31,38 @@ public class Commands implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] args) {
 		if (args.length < 1) {
 			sender.sendMessage(getPluginInfo());
-		} else if (args.length < 2) {
-			if (args[0].equals("unchunk")) {
-				sender.sendMessage(purgeChunk());
-			}
-		} else if (args.length < 3) {
-			if (args[0].equals("info")) {
-				if (args[1].equals("entity")) {
+		} else if (args[0].equals("entity")) {
+			if (args.length < 2) {
+				sender.sendMessage(getPluginInfo());
+			} else if (args.length < 3) {
+				if (args[1].equals("info")) {
 					sender.sendMessage(getEntityInfo());
-				} else if (args[1].equals("chunk")) {
-					sender.sendMessage(getChunkInfo());
+				} else {
+					sender.sendMessage(getPluginInfo());
 				}
-			} else if (args[0].equals("purge")) {
-				if (args[1].equals("chunk")) {
-					sender.sendMessage(purgeChunk());
-				}
-			}
-		} else if (args.length < 4) {
-			if (args[0].equals("purge")) {
-				if (args[1].equals("entity")) {
+			} else if (args.length < 4) {
+				if (args[1].equals("purge")) {
 					sender.sendMessage(purgeEntity(args[2], 16));
+				} else {
+					sender.sendMessage(getPluginInfo());
 				}
 			}
+		} else if (args[0].equals("chunk")) {
+			if (args.length < 2) {
+				sender.sendMessage(getPluginInfo());
+			} else if (args.length < 3) {
+				if (args[1].equals("info")) {
+					sender.sendMessage(getChunkInfo());
+				} else if (args[1].equals("purge")) {
+					sender.sendMessage(purgeChunk());
+				} else {
+					sender.sendMessage(getPluginInfo());
+				}
+			} else {
+				sender.sendMessage(getPluginInfo());
+			}
+		} else {
+			sender.sendMessage(getPluginInfo());
 		}
 		return true;
 	}
@@ -76,7 +86,7 @@ public class Commands implements CommandExecutor {
 		for (World world : Bukkit.getWorlds()) {
 			i = i + world.getLoadedChunks().length;
 			for (Chunk chunk : world.getLoadedChunks()) {
-				chunk.unload();
+				chunk.unload(true, true);
 			}
 			j = j + world.getLoadedChunks().length;
 		}
