@@ -50,7 +50,7 @@ public class Commands implements CommandExecutor {
 		} else if (args.length < 4) {
 			if (args[0].equals("purge")) {
 				if (args[1].equals("entity")) {
-					sender.sendMessage(purgeEntity(args[2]));
+					sender.sendMessage(purgeEntity(args[2], 16));
 				}
 			}
 		}
@@ -71,21 +71,20 @@ public class Commands implements CommandExecutor {
 	}
 
 	private String purgeChunk() {
-		int valueBefore = 0;
-		int valueAfter = 0;
+		int i = 0;
+		int j = 0;
 		for (World world : Bukkit.getWorlds()) {
-			Chunk[] chunks = world.getLoadedChunks();
-			valueBefore = valueBefore + chunks.length;
-			for (Chunk chunk : chunks) {
-				chunk.unload(true, true);
+			i = i + world.getLoadedChunks().length;
+			for (Chunk chunk : world.getLoadedChunks()) {
+				chunk.unload();
 			}
-			valueAfter = valueAfter + world.getLoadedChunks().length;
+			j = j + world.getLoadedChunks().length;
 		}
-		int valueFinal = valueBefore - valueAfter;
-		return new String(ChatColor.GOLD + "Purge chunk number: " + valueFinal);
+		i = i - j;
+		return new String(ChatColor.GOLD + "Purge chunk number: " + i);
 	}
 
-	private String purgeEntity(String typeName) {
+	private String purgeEntity(String typeName, int limit) {
 		if (typeName.equals("PLAYER")) {
 			return new String(ChatColor.GOLD + "You can not purge player entity");
 		}
@@ -99,7 +98,7 @@ public class Commands implements CommandExecutor {
 							rate = rate + 1;
 						}
 					}
-					if (rate > 16) {
+					if (rate > limit) {
 						entity.remove();
 						total = total + 1;
 					}

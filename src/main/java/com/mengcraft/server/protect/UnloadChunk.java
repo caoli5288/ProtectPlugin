@@ -9,7 +9,7 @@ public class UnloadChunk implements Runnable{
 	public void run() {
 		for (World world : Bukkit.getWorlds()) {
 			for (Chunk chunk : world.getLoadedChunks()) {
-				chunk.unload(true, true);
+				chunk.unload();
 			}
 		}
 	}
