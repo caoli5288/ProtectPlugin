@@ -26,7 +26,7 @@ public class AntiJoinBot implements Listener, Runnable {
 		getRequestIps().clear();
 		getRequestName().clear();
 	}
-
+	
 	@EventHandler
 	public void onLogin(PlayerLoginEvent event) {
 		// System.out.println("Events.OnLogin.New."+event.getAddress().getHostAddress());

@@ -15,13 +15,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
+import com.mengcraft.common.util.OptionParser;
+import com.mengcraft.common.util.OptionParser.FilterMode;
+import com.mengcraft.common.util.OptionParser.ParsedOption;
+
 public class Commands implements CommandExecutor {
 
 	private String[] getPluginInfo() {
 		String[] strings = new String[] {
-				ChatColor.GOLD + "/protect entity info",
-				ChatColor.GOLD + "/protect entity purge [ENTITY_TYPE]",
-				ChatColor.GOLD + "/protect chunk info",
+				ChatColor.GOLD + "/protect entity [world STRING]",
+				ChatColor.GOLD + "/protect entity <purge ENTITY_TYPE> [world STRING] [rate INT]",
+				ChatColor.GOLD + "/protect chunk",
 				ChatColor.GOLD + "/protect chunk unload"
 		};
 		return strings;
@@ -33,14 +37,15 @@ public class Commands implements CommandExecutor {
 			sender.sendMessage(getPluginInfo());
 		} else if (args[0].equals("entity")) {
 			if (args.length < 2) {
-				sender.sendMessage(getPluginInfo());
-			} else if (args.length < 3) {
-				if (args[1].equals("info")) {
+				sender.sendMessage(getEntityInfo());
+			} else {
+				OptionParser parser = new OptionParser();
+				parser.addFilter("world", FilterMode.WITH_ARGUMENT);
+				ParsedOption option = parser.parse(args);
+				if (option.has("world") && Bukkit.getWorld(option.getArgument("world")) != null) {
+					sender.sendMessage(getEntityInfo(Bukkit.getWorld(option.getArgument("world"))));
+				} else {
 					sender.sendMessage(getEntityInfo());
-				}
-			} else if (args.length < 4) {
-				if (args[1].equals("purge")) {
-					sender.sendMessage(purgeEntity(args[2], 16));
 				}
 			}
 		} else if (args[0].equals("chunk")) {
@@ -57,6 +62,43 @@ public class Commands implements CommandExecutor {
 			}
 		}
 		return true;
+	}
+
+	private String[] getEntityInfo(World world) {
+		List<World> worlds = new ArrayList<>();
+		worlds.add(world);
+		return getEntityInfo(worlds);
+	}
+
+	private String[] getEntityInfo(List<World> worlds) {
+		Map<EntityType, Integer> entityMap = new HashMap<>();
+		int total = 0;
+		List<Entity> entities = new ArrayList<>();
+		for (World world : worlds) {
+			entities.addAll(world.getEntities());
+		}
+		for (Entity entity : entities) {
+			EntityType type = entity.getType();
+			if (entityMap.get(type) != null) {
+				int value = entityMap.remove(type);
+				entityMap.put(type, value + 1);
+			} else {
+				entityMap.put(type, 1);
+			}
+			total = total + 1;
+		}
+		List<String> messages = new ArrayList<>();
+		for (EntityType type : entityMap.keySet()) {
+			messages.add(ChatColor.GOLD + type.name() + ": " + entityMap.get(type));
+		}
+		messages.add(ChatColor.GOLD + "TOTAL: " + total);
+		int size = messages.size();
+		return messages.toArray(new String[size]);
+
+	}
+
+	private String[] getEntityInfo() {
+		return getEntityInfo(Bukkit.getWorlds());
 	}
 
 	private String[] getChunkInfo() {
@@ -76,11 +118,11 @@ public class Commands implements CommandExecutor {
 		int i = 0;
 		int j = 0;
 		for (World world : Bukkit.getWorlds()) {
-			 i = i + world.getLoadedChunks().length;
-			 for (Chunk chunk : world.getLoadedChunks()) {
-			 chunk.unload(true, true);
-			 }
-			 j = j + world.getLoadedChunks().length;
+			i = i + world.getLoadedChunks().length;
+			for (Chunk chunk : world.getLoadedChunks()) {
+				chunk.unload(true, true);
+			}
+			j = j + world.getLoadedChunks().length;
 		}
 		i = i - j;
 		return new String(ChatColor.GOLD + "Purge chunk number: " + i);
@@ -111,32 +153,6 @@ public class Commands implements CommandExecutor {
 			}
 		}
 		return new String(ChatColor.GOLD + "Purge entity " + typeName + " number: " + total);
-	}
-
-	private String[] getEntityInfo() {
-		Map<EntityType, Integer> entityMap = new HashMap<>();
-		int total = 0;
-		List<Entity> entities = new ArrayList<>();
-		for (World world : Bukkit.getWorlds()) {
-			entities.addAll(world.getEntities());
-		}
-		for (Entity entity : entities) {
-			EntityType type = entity.getType();
-			if (entityMap.get(type) != null) {
-				int value = entityMap.remove(type);
-				entityMap.put(type, value + 1);
-			} else {
-				entityMap.put(type, 1);
-			}
-			total = total + 1;
-		}
-		List<String> messages = new ArrayList<>();
-		for (EntityType type : entityMap.keySet()) {
-			messages.add(ChatColor.GOLD + type.name() + ": " + entityMap.get(type));
-		}
-		messages.add(ChatColor.GOLD + "TOTAL: " + total);
-		int size = messages.size();
-		return messages.toArray(new String[size]);
 	}
 
 }
