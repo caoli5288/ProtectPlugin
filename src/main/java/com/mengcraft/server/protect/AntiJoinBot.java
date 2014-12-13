@@ -11,11 +11,11 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 
 import com.mengcraft.server.Protect;
 
-public class JoinBot implements Listener, Runnable {
+public class AntiJoinBot implements Listener, Runnable {
 	private final Set<String> reqeustNames;
 	private final Set<String> requestIps;
 
-	public JoinBot() {
+	public AntiJoinBot() {
 		this.requestIps = new HashSet<String>();
 		this.reqeustNames = new HashSet<String>();
 		Bukkit.getServer().getPluginManager().registerEvents(this, Protect.get());

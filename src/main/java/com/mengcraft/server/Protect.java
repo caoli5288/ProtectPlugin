@@ -7,10 +7,10 @@ import org.bukkit.command.defaults.SaveOffCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
-import com.mengcraft.server.protect.CheckFree;
+import com.mengcraft.server.protect.CheckDisk;
 import com.mengcraft.server.protect.Commands;
-import com.mengcraft.server.protect.Explosion;
-import com.mengcraft.server.protect.JoinBot;
+import com.mengcraft.server.protect.AntiExplosion;
+import com.mengcraft.server.protect.AntiJoinBot;
 import com.mengcraft.server.protect.KeepFarm;
 import com.mengcraft.server.protect.KickFull;
 import com.mengcraft.server.protect.ModifySpigot;
@@ -44,7 +44,7 @@ public class Protect extends JavaPlugin {
 		}
 		if (getConfig().getBoolean("joinbot.use", true)) {
 			long delay = getConfig().getLong("joinbot.value", 60) * 20;
-			getServer().getScheduler().runTaskTimer(get(), new JoinBot(), delay, delay);
+			getServer().getScheduler().runTaskTimer(get(), new AntiJoinBot(), delay, delay);
 			getLogger().info("防止爆服器爆服已开启");
 		}
 		if (getConfig().getBoolean("saveworld.use", true)) {
@@ -60,7 +60,8 @@ public class Protect extends JavaPlugin {
 		}
 		if (getConfig().getBoolean("unchunk.use", true)) {
 			long value = getConfig().getLong("unchunk.value", 10) * 1200;
-			Bukkit.getScheduler().runTaskTimer(get(), new UnloadChunk(), value, value);
+			Bukkit.getScheduler().runTaskTimer(this, UnloadChunk.getUnloadChunk(), value, value);
+			Bukkit.getPluginManager().registerEvents(UnloadChunk.getUnloadChunk(), this);
 			getLogger().info("防止区块卡太多已开启");
 		}
 		if (getConfig().getBoolean("spigot.use", true)) {
@@ -69,13 +70,13 @@ public class Protect extends JavaPlugin {
 			getLogger().info("优化Spigot配置已开启");
 		}
 		if (getConfig().getBoolean("explosion.use", true)) {
-			Bukkit.getPluginManager().registerEvents(new Explosion(), this);
+			Bukkit.getPluginManager().registerEvents(new AntiExplosion(), this);
 			getLogger().info("防止爆炸毁地图已开启");
 		}
 		
 		Bukkit.getPluginManager().registerEvents(new KickFull(), get());
-		Bukkit.getPluginManager().registerEvents(CheckFree.getCheckFree(), this);
-		Bukkit.getScheduler().runTaskTimer(this, CheckFree.getCheckFree(), 0, 18000);
+		Bukkit.getPluginManager().registerEvents(CheckDisk.getCheckFree(), this);
+		Bukkit.getScheduler().runTaskTimer(this, CheckDisk.getCheckFree(), 0, 18000);
 		getServer().getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 		
 		getLogger().info("防止服务器过载已开启");
