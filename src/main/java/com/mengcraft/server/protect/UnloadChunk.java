@@ -14,6 +14,7 @@ public class UnloadChunk implements Runnable, Listener {
 	private final static UnloadChunk UNLOAD_CHUNK = new UnloadChunk();
 
 	private UnloadChunk() {
+		// Fix done
 		for (World world : Bukkit.getWorlds()) {
 			world.setKeepSpawnInMemory(false);
 		}
