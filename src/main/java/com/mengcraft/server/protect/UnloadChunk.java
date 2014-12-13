@@ -6,8 +6,6 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldInitEvent;
 
 public class UnloadChunk implements Runnable, Listener {
@@ -42,15 +40,5 @@ public class UnloadChunk implements Runnable, Listener {
 	@EventHandler
 	public void onWorldInit(WorldInitEvent event) {
 		event.getWorld().setKeepSpawnInMemory(false);
-	}
-
-	@EventHandler
-	public void onChunkLoad(ChunkLoadEvent event) {
-		System.out.println("Protect.loadChunk.Fire");
-	}
-
-	@EventHandler
-	public void onChunkUnload(ChunkUnloadEvent event) {
-		System.out.println("Protect.UnloadChunk.Fire");
 	}
 }

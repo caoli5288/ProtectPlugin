@@ -24,7 +24,7 @@ public class Commands implements CommandExecutor {
 	private String[] getPluginInfo() {
 		String[] strings = new String[] {
 				ChatColor.GOLD + "/protect entity [world STRING]",
-				ChatColor.GOLD + "/protect entity <purge ENTITY_TYPE> [world STRING] [rate INT]",
+				ChatColor.GOLD + "/protect entity purge ENTITY_TYPE [world STRING] [rate INT]",
 				ChatColor.GOLD + "/protect chunk",
 				ChatColor.GOLD + "/protect chunk unload"
 		};
@@ -36,25 +36,37 @@ public class Commands implements CommandExecutor {
 		if (args.length < 1) {
 			sender.sendMessage(getPluginInfo());
 		} else if (args[0].equals("entity")) {
-			if (args.length < 2) {
-				sender.sendMessage(getEntityInfo());
-			} else {
-				OptionParser parser = new OptionParser();
-				parser.addFilter("world", FilterMode.WITH_ARGUMENT);
-				ParsedOption option = parser.parse(args);
-				if (option.has("world") && Bukkit.getWorld(option.getArgument("world")) != null) {
-					sender.sendMessage(getEntityInfo(Bukkit.getWorld(option.getArgument("world"))));
-				} else {
-					sender.sendMessage(getEntityInfo());
+			OptionParser parser = new OptionParser();
+			parser.addFilter("purge", FilterMode.WITH_ARGUMENT);
+			parser.addFilter("world", FilterMode.WITH_ARGUMENT);
+			parser.addFilter("rate", FilterMode.WITH_ARGUMENT);
+			ParsedOption option = parser.parse(args);
+			if (option.has("purge")) {
+				int rate = 16;
+				if (option.has("rate") && option.isInteger("rate")) {
+					rate = option.getInteger("rate");
 				}
+				if (rate < 0) {
+					sender.sendMessage(ChatColor.RED + "过小的限制值");
+				} else if (option.has("world") && Bukkit.getWorld(option.getString("world")) != null) {
+					sender.sendMessage(purgeEntity(Bukkit.getWorld(option.getString("world")), option.getString("purge"), rate));
+				} else if (option.has("world")) {
+					sender.sendMessage(ChatColor.RED + "错误的世界名");
+				} else {
+					sender.sendMessage(purgeEntity(option.getString("purge"), rate));
+				}
+			} else if (option.has("world") && Bukkit.getWorld(option.getString("world")) != null) {
+				sender.sendMessage(getEntityInfo(Bukkit.getWorld(option.getString("world"))));
+			} else if (option.has("world")){
+				sender.sendMessage(ChatColor.RED + "错误的世界名");
+			} else {
+				sender.sendMessage(getEntityInfo());
 			}
 		} else if (args[0].equals("chunk")) {
 			if (args.length < 2) {
-				sender.sendMessage(getPluginInfo());
+				sender.sendMessage(getChunkInfo());
 			} else if (args.length < 3) {
-				if (args[1].equals("info")) {
-					sender.sendMessage(getChunkInfo());
-				} else if (args[1].equals("unload")) {
+				if (args[1].equals("unload")) {
 					sender.sendMessage(unloadChunk());
 				}
 			} else {
@@ -129,12 +141,22 @@ public class Commands implements CommandExecutor {
 	}
 
 	private String purgeEntity(String typeName, int limit) {
+		return purgeEntity(Bukkit.getWorlds(), typeName, limit);
+	}
+
+	private String purgeEntity(World world, String typeName, int limit) {
+		List<World> worlds = new ArrayList<>();
+		worlds.add(world);
+		return purgeEntity(worlds, typeName, limit);
+	}
+
+	private String purgeEntity(List<World> worlds, String typeName, int limit) {
 		if (typeName.equals("PLAYER")) {
 			return new String(ChatColor.GOLD + "You can not purge player entity");
 		}
 		int total = 0;
 		List<Entity> entities = new ArrayList<>();
-		for (World world : Bukkit.getWorlds()) {
+		for (World world : worlds) {
 			entities.addAll(world.getEntities());
 		}
 		for (Entity entity : entities) {
