@@ -7,6 +7,7 @@ import org.bukkit.command.defaults.SaveOffCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
+import com.mengcraft.server.protect.AntiRedClock;
 import com.mengcraft.server.protect.CheckDisk;
 import com.mengcraft.server.protect.Commands;
 import com.mengcraft.server.protect.AntiExplosion;
@@ -32,7 +33,14 @@ public class Protect extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		getCommand("protect").setExecutor(new Commands());
-		
+
+		if (getConfig().getBoolean("redclock.use", true)) {
+			int limit = getConfig().getInt("redclock.value", 25);
+			AntiRedClock red = new AntiRedClock(limit);
+			Bukkit.getPluginManager().registerEvents(red, this);
+			Bukkit.getScheduler().runTaskTimer(this, red, 20, 20);
+			getLogger().info("防止超高频电路已开启");
+		}
 		if (getConfig().getBoolean("restart.use", true)) {
 			long delay = getConfig().getLong("restart.value", 24) * 72000;
 			Bukkit.getScheduler().runTaskTimer(get(), new Restart(), delay, 6000);
@@ -73,12 +81,12 @@ public class Protect extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(new AntiExplosion(), this);
 			getLogger().info("防止爆炸毁地图已开启");
 		}
-		
+
 		Bukkit.getPluginManager().registerEvents(new KickFull(), get());
 		Bukkit.getPluginManager().registerEvents(CheckDisk.getCheckFree(), this);
 		Bukkit.getScheduler().runTaskTimer(this, CheckDisk.getCheckFree(), 0, 18000);
 		getServer().getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
-		
+
 		getLogger().info("防止服务器过载已开启");
 		getLogger().info("欢迎使用梦梦家服务器");
 

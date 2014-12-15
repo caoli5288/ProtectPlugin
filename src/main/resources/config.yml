@@ -1,3 +1,9 @@
+redclock:
+  # This option remove  pulsing redstone circuit automatic
+  # The value is how many change count in one second
+  use: true
+  value: 25
+
 restart:
   # This option restart your server automatic
   # It act after {value} hours
