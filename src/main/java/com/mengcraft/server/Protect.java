@@ -43,7 +43,8 @@ public class Protect extends JavaPlugin {
 		}
 		if (getConfig().getBoolean("restart.use", true)) {
 			long delay = getConfig().getLong("restart.value", 24) * 72000;
-			Bukkit.getScheduler().runTaskTimer(get(), new Restart(), delay, 6000);
+			int limit = getConfig().getInt("restart.limit", 0);
+			Bukkit.getScheduler().runTaskTimer(get(), new Restart(limit), delay, 6000);
 			getLogger().info("智能重启服务器已开启");
 		}
 		if (getConfig().getBoolean("keepfarm.use", true)) {
@@ -87,9 +88,8 @@ public class Protect extends JavaPlugin {
 		Bukkit.getScheduler().runTaskTimer(this, CheckDisk.getCheckFree(), 0, 18000);
 		getServer().getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 
-		getLogger().info("防止服务器过载已开启");
 		getLogger().info("欢迎使用梦梦家服务器");
-
+		getLogger().info("http://www.mengcraft.com");
 		try {
 			new Metrics(get()).start();
 		} catch (IOException e1) {
