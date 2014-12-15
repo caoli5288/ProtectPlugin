@@ -7,11 +7,12 @@ redclock:
 restart:
   # This option restart your server automatic
   # It act after {value} hours
-  # It stop your server if it empty in 5 minute
+  # It stop your server if online less then {limit}
   # WARN: Need a loop script to function
   # if you need not a loop script please disable it
   use: true
   value: 24
+  limit: 0
   
 spawnmob:
   # This option protect mob farm lag your server
