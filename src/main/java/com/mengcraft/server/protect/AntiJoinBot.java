@@ -3,23 +3,14 @@ package com.mengcraft.server.protect;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 
-import com.mengcraft.server.Protect;
-
 public class AntiJoinBot implements Listener, Runnable {
-	private final Set<String> reqeustNames;
-	private final Set<String> requestIps;
-
-	public AntiJoinBot() {
-		this.requestIps = new HashSet<String>();
-		this.reqeustNames = new HashSet<String>();
-		Bukkit.getServer().getPluginManager().registerEvents(this, Protect.get());
-	}
+	private final Set<String> reqeustNames = new HashSet<>();
+	private final Set<String> requestIps = new HashSet<>();
 
 	@Override
 	public void run() {

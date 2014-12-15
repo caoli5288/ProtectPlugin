@@ -10,15 +10,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 
 public class CheckDisk implements Runnable, Listener {
-	private final static CheckDisk CHECK_FREE = new CheckDisk();
 	private final static String COREPROTEC_MESSAGE = ChatColor.RED + "CoreProtect超过1GB请及时清理";
 	private final static String FREE_SPACE_MESSAGE = ChatColor.RED + "硬盘总空间已经不足1GB请及时清理";
 	private boolean a = false;
 	private boolean b = false;
 
-	private CheckDisk() {
-	}
-	
 	@EventHandler
 	public void onOpJoin(PlayerJoinEvent event) {
 		if (event.getPlayer().isOp()) {
@@ -47,9 +43,5 @@ public class CheckDisk implements Runnable, Listener {
 		} else {
 			this.b = false;
 		}
-	}
-
-	public static CheckDisk getCheckFree() {
-		return CHECK_FREE;
 	}
 }

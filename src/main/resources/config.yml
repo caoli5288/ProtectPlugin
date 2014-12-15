@@ -1,5 +1,5 @@
 redclock:
-  # This option remove  pulsing redstone circuit automatic
+  # This option remove  pulsing red stone circuit automatic
   # The value is how many change count in one second
   use: true
   value: 25
@@ -37,13 +37,6 @@ saveworld:
   use: true
   value: 60
   
-unchunk:
-  # This option unload loaded chunk every {value} minute
-  # This value must be greater than 0
-  # Please don't modify it if not necessary
-  use: true
-  value: 10
-  
 keepfarm:
   # This option protect your farm from jumper
   use: true
@@ -61,4 +54,4 @@ spigot:
   use: true
   value: 4
 
-version: 0.2.2
+version: 0.2.3
