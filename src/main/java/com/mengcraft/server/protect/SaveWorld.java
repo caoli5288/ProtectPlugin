@@ -21,7 +21,7 @@ public class SaveWorld implements Runnable {
 		if (getX() >= worlds.size()) {
 			setX(0);
 		}
-		Chunk[] chunks = worlds.get(getX()).getLoadedChunks();
+		Chunk[] chunks = worlds.get(this.x).getLoadedChunks();
 		for (Chunk chunk : chunks) {
 			chunk.unload(true, true);
 		}

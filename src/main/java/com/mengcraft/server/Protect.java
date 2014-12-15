@@ -62,6 +62,7 @@ public class Protect extends JavaPlugin {
 			getServer().getScheduler().runTaskTimer(this, new SaveWorld(), delay, delay);
 			this.killer.addName("AutoSaveWorld");
 			this.killer.addName("AutoSave");
+			this.killer.addName("NoSpawnChunks");
 			getLogger().info("流畅的保存地图已开启");
 		}
 		if (getConfig().getBoolean("spawnmob.use", true)) {
