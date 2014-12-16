@@ -49,11 +49,10 @@ public class Commands implements CommandExecutor {
 				if (option.has("rate") && option.isInteger("rate")) {
 					rate = option.getInteger("rate");
 				} else if (option.has("rate")) {
-					sender.sendMessage(ChatColor.RED + "不正确的限制值");
-					sender.sendMessage(ChatColor.RED + "使用默认限制值");
+					rate = -1;
 				}
 				if (rate < 0) {
-					sender.sendMessage(ChatColor.RED + "过小的限制值");
+					sender.sendMessage(ChatColor.RED + "不正确的限制值");
 				} else if (option.has("world") && Bukkit.getWorld(option.getString("world")) != null) {
 					sender.sendMessage(purgeEntity(Bukkit.getWorld(option.getString("world")), option.getString("purge"), rate));
 				} else if (option.has("world")) {
