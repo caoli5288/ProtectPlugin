@@ -27,6 +27,9 @@ public class Commands implements CommandExecutor {
 				ChatColor.GOLD + "/protect entity purge ENTITY_TYPE [world STRING] [rate INT]",
 				ChatColor.GOLD + "/protect chunk",
 				ChatColor.GOLD + "/protect chunk unload"
+//				ChatColor.GOLD + "/protect ips",
+//				ChatColor.GOLD + "/protect ips ban PLAYER [rate INT]",
+//				ChatColor.GOLD + "/protect ips unban IP_SEGMENT"
 		};
 		return strings;
 	}
@@ -45,6 +48,9 @@ public class Commands implements CommandExecutor {
 				int rate = 16;
 				if (option.has("rate") && option.isInteger("rate")) {
 					rate = option.getInteger("rate");
+				} else if (option.has("rate")) {
+					sender.sendMessage(ChatColor.RED + "不正确的限制值");
+					sender.sendMessage(ChatColor.RED + "使用默认限制值");
 				}
 				if (rate < 0) {
 					sender.sendMessage(ChatColor.RED + "过小的限制值");
@@ -57,7 +63,7 @@ public class Commands implements CommandExecutor {
 				}
 			} else if (option.has("world") && Bukkit.getWorld(option.getString("world")) != null) {
 				sender.sendMessage(getEntityInfo(Bukkit.getWorld(option.getString("world"))));
-			} else if (option.has("world")){
+			} else if (option.has("world")) {
 				sender.sendMessage(ChatColor.RED + "错误的世界名");
 			} else {
 				sender.sendMessage(getEntityInfo());
@@ -69,6 +75,20 @@ public class Commands implements CommandExecutor {
 				if (args[1].equals("unload")) {
 					sender.sendMessage(unloadChunk());
 				}
+			} else {
+				sender.sendMessage(getPluginInfo());
+			}
+		} else if (args[0].equals("ips")) {
+			OptionParser parser = new OptionParser();
+			parser.addFilter("ban", FilterMode.WITH_ARGUMENT);
+			parser.addFilter("unban", FilterMode.WITH_ARGUMENT);
+			ParsedOption option = parser.parse(args);
+			if (option.has("ban") && option.has("unban")) {
+				sender.sendMessage(ChatColor.RED + "错误的参数");
+			} else if (option.has("ban") && Bukkit.getPlayerExact(option.getString("ban")) != null) {
+				// TODO
+			} else if (option.has("unban")) {
+				// TODO
 			} else {
 				sender.sendMessage(getPluginInfo());
 			}
