@@ -12,6 +12,7 @@ import com.mengcraft.server.protect.AntiExplosion;
 import com.mengcraft.server.protect.AntiJoinBot;
 import com.mengcraft.server.protect.AntiOverload;
 import com.mengcraft.server.protect.AntiRedClock;
+import com.mengcraft.server.protect.BannedSegmentManager;
 import com.mengcraft.server.protect.CheckDisk;
 import com.mengcraft.server.protect.Commands;
 import com.mengcraft.server.protect.ModifySpigot;
@@ -81,6 +82,7 @@ public class Protect extends JavaPlugin {
 		}
 		if (true) {
 			CheckDisk disk = new CheckDisk();
+			Bukkit.getPluginManager().registerEvents(BannedSegmentManager.getManager().getEvents(), this);
 			Bukkit.getPluginManager().registerEvents(disk, this);
 			Bukkit.getPluginManager().registerEvents(new AntiOverload(), this);
 			Bukkit.getPluginManager().registerEvents(this.killer, this);

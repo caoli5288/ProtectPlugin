@@ -14,6 +14,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 import com.mengcraft.common.util.OptionParser;
 import com.mengcraft.common.util.OptionParser.FilterMode;
@@ -26,10 +27,10 @@ public class Commands implements CommandExecutor {
 				ChatColor.GOLD + "/protect entity [world STRING]",
 				ChatColor.GOLD + "/protect entity purge ENTITY_TYPE [world STRING] [rate INT]",
 				ChatColor.GOLD + "/protect chunk",
-				ChatColor.GOLD + "/protect chunk unload"
-//				ChatColor.GOLD + "/protect ips",
-//				ChatColor.GOLD + "/protect ips ban PLAYER [rate INT]",
-//				ChatColor.GOLD + "/protect ips unban IP_SEGMENT"
+				ChatColor.GOLD + "/protect chunk unload",
+				ChatColor.GOLD + "/protect ips",
+				ChatColor.GOLD + "/protect ips ban PLAYER [rate INT] [time INT_HOUR]",
+				ChatColor.GOLD + "/protect ips unban IP_SEGMENT"
 		};
 		return strings;
 	}
@@ -81,18 +82,59 @@ public class Commands implements CommandExecutor {
 			OptionParser parser = new OptionParser();
 			parser.addFilter("ban", FilterMode.WITH_ARGUMENT);
 			parser.addFilter("unban", FilterMode.WITH_ARGUMENT);
+			parser.addFilter("rate", FilterMode.WITH_ARGUMENT);
+			parser.addFilter("time", FilterMode.WITH_ARGUMENT);
 			ParsedOption option = parser.parse(args);
 			if (option.has("ban") && option.has("unban")) {
 				sender.sendMessage(ChatColor.RED + "错误的参数");
 			} else if (option.has("ban") && Bukkit.getPlayerExact(option.getString("ban")) != null) {
-				// TODO
+				int rate = 2;
+				if (option.has("rate") && option.isInteger("rate")) {
+					rate = option.getInteger("rate");
+				} else if (option.has("rate")) {
+					rate = -1;
+				}
+				int time = 24;
+				if (option.has("time") && option.isInteger("time")) {
+					time = option.getInteger("time");
+				} else if (option.has("time")) {
+					time = -1;
+				}
+				if (rate > 3 || rate < 0) {
+					sender.sendMessage(ChatColor.RED + "错误的网段参数");
+				} else if (time < 0) {
+					sender.sendMessage(ChatColor.RED + "错误的时间参数");
+				} else {
+					sender.sendMessage(banips(option.getString("ban"), rate, time));
+				}
+			} else if (option.has("ban")) {
+				sender.sendMessage(ChatColor.RED + "玩家不在线或不存在");
 			} else if (option.has("unban")) {
-				// TODO
+				sender.sendMessage(unbanips(option.getString("unban")));
 			} else {
+				// TODO
 				sender.sendMessage(getPluginInfo());
 			}
 		}
 		return true;
+	}
+
+	private String unbanips(String string) {
+		boolean result = BannedSegmentManager.getManager().remove(string);
+		if (result) {
+			BannedSegmentManager.getManager().saveLines();
+			return ChatColor.GOLD + "解除封禁成功";
+		}
+		return ChatColor.RED + "解除封禁失败";
+	}
+
+	private String banips(String name, int rate, int time) {
+		Player player = Bukkit.getPlayerExact(name);
+		player.kickPlayer("你已被封禁");
+		long untill = System.currentTimeMillis() + time * 3600000;
+		BannedSegmentManager.getManager().createNew(player.getAddress().getAddress(), rate, untill);
+		BannedSegmentManager.getManager().saveLines();
+		return ChatColor.GOLD + "封禁IP段" + time + "小时成功";
 	}
 
 	private String[] getEntityInfo(World world) {
