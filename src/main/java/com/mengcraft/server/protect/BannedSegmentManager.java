@@ -42,6 +42,17 @@ public class BannedSegmentManager {
 		return events;
 	}
 
+	public String[] getMessage() {
+		List<String> strings = new ArrayList<>();
+		for(Segment segment : this.segments.values()) {
+			strings.add(segment.toString());
+		}
+		if (strings.size() < 1) {
+			strings.add("N/A");
+		}
+		return strings.toArray(new String[strings.size()]);
+	}
+
 	public void createNew(InetAddress addr, int limit, long untill) {
 		this.segments.put(addr.getHostAddress(), new Segment(addr, limit, untill));
 	}

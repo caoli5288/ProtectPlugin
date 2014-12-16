@@ -105,21 +105,24 @@ public class Commands implements CommandExecutor {
 				} else if (time < 0) {
 					sender.sendMessage(ChatColor.RED + "错误的时间参数");
 				} else {
-					sender.sendMessage(banips(option.getString("ban"), rate, time));
+					sender.sendMessage(ban(option.getString("ban"), rate, time));
 				}
 			} else if (option.has("ban")) {
 				sender.sendMessage(ChatColor.RED + "玩家不在线或不存在");
 			} else if (option.has("unban")) {
-				sender.sendMessage(unbanips(option.getString("unban")));
+				sender.sendMessage(unban(option.getString("unban")));
 			} else {
-				// TODO
-				sender.sendMessage(getPluginInfo());
+				sender.sendMessage(getBannedSegmentInfo());
 			}
 		}
 		return true;
 	}
 
-	private String unbanips(String string) {
+	private String[] getBannedSegmentInfo() {
+		return BannedSegmentManager.getManager().getMessage();
+	}
+
+	private String unban(String string) {
 		boolean result = BannedSegmentManager.getManager().remove(string);
 		if (result) {
 			BannedSegmentManager.getManager().saveLines();
@@ -128,13 +131,24 @@ public class Commands implements CommandExecutor {
 		return ChatColor.RED + "解除封禁失败";
 	}
 
-	private String banips(String name, int rate, int time) {
-		Player player = Bukkit.getPlayerExact(name);
-		player.kickPlayer("你已被封禁");
+	private String ban(String name, int rate, int time) {
 		long untill = System.currentTimeMillis() + time * 3600000;
-		BannedSegmentManager.getManager().createNew(player.getAddress().getAddress(), rate, untill);
+		BannedSegmentManager.getManager().createNew(Bukkit.getPlayerExact(name).getAddress().getAddress(), rate, untill);
 		BannedSegmentManager.getManager().saveLines();
+		filterOnline();
 		return ChatColor.GOLD + "封禁IP段" + time + "小时成功";
+	}
+
+	private void filterOnline() {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			filterPlayer(player);
+		}
+	}
+
+	private void filterPlayer(Player player) {
+		if (BannedSegmentManager.getManager().contains(player.getAddress().getAddress())) {
+			player.kickPlayer("你的IP段已被服务器临时封禁");
+		}
 	}
 
 	private String[] getEntityInfo(World world) {
@@ -237,5 +251,4 @@ public class Commands implements CommandExecutor {
 		}
 		return new String(ChatColor.GOLD + "Purge entity " + typeName + " number: " + total);
 	}
-
 }
