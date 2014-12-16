@@ -30,8 +30,10 @@ public class PluginKiller implements Listener {
 			if (plugin != null && plugin.isEnabled()) {
 				this.markedPlugins.add(plugin);
 				Bukkit.getPluginManager().disablePlugin(plugin);
-			} else if (plugin != null) {
+			}
+			if (plugin != null) {
 				this.markedPlugins.add(plugin);
+				Bukkit.getLogger().warning("已禁用功能重复的[" + plugin.getName() + "]插件");
 			}
 		}
 		unloadPlugins();
@@ -43,7 +45,6 @@ public class PluginKiller implements Listener {
 		Map<String, Plugin> lookupNames = new HashMap<>();
 		for (Plugin plugin : plugins) {
 			lookupNames.put(plugin.getName(), plugin);
-			Bukkit.getLogger().warning("已禁用功能重复的 " + plugin.getName() + " 插件");
 		}
 		try {
 			Field pluginsField = Bukkit.getPluginManager().getClass().getDeclaredField("plugins");
