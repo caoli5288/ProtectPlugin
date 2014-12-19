@@ -13,19 +13,29 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
-public class PluginKiller implements Listener {
+public class PluginKiller {
+	private final static PluginKiller KILLER = new PluginKiller();
+	private final Events events = new Events();
 	private final List<String> names = new ArrayList<>();
 	private final List<Plugin> markedPlugins = new ArrayList<>();
+	
+	private PluginKiller(){
+	}
 
-	@EventHandler
-	public void onPluginEnable(PluginEnableEvent event) {
-		if (this.names.contains(event.getPlugin().getName())) {
-			event.getPlugin().getPluginLoader().disablePlugin(event.getPlugin());
-		}
+	public static PluginKiller getKiller() {
+		return KILLER;
+	}
+
+	public Events getEvents() {
+		return events;
+	}
+
+	public void addName(String name) {
+		getNames().add(name);
 	}
 
 	public void runPluginKiller() {
-		for (String name : this.names) {
+		for (String name : this.getNames()) {
 			Plugin plugin = Bukkit.getPluginManager().getPlugin(name);
 			if (plugin != null && plugin.isEnabled()) {
 				this.markedPlugins.add(plugin);
@@ -37,6 +47,10 @@ public class PluginKiller implements Listener {
 			}
 		}
 		unloadPlugins();
+	}
+
+	private List<String> getNames() {
+		return names;
 	}
 
 	private void unloadPlugins() {
@@ -64,7 +78,12 @@ public class PluginKiller implements Listener {
 		}
 	}
 
-	public void addName(String name) {
-		names.add(name);
+	private class Events implements Listener {
+		@EventHandler
+		public void onPluginEnable(PluginEnableEvent event) {
+			if (PluginKiller.getKiller().getNames().contains(event.getPlugin().getName())) {
+				event.getPlugin().getPluginLoader().disablePlugin(event.getPlugin());
+			}
+		}
 	}
 }

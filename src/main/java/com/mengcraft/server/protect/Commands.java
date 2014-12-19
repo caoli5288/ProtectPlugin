@@ -1,6 +1,7 @@
 package com.mengcraft.server.protect;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +45,10 @@ public class Commands implements CommandExecutor {
 			parser.addFilter("purge", FilterMode.WITH_ARGUMENT);
 			parser.addFilter("world", FilterMode.WITH_ARGUMENT);
 			parser.addFilter("rate", FilterMode.WITH_ARGUMENT);
-			ParsedOption option = parser.parse(args);
-			if (option.has("purge")) {
+			ParsedOption option = parser.parse(Arrays.copyOfRange(args, 1, args.length));
+			if (option.getSingleList().size() > 0) {
+				sender.sendMessage(ChatColor.RED + "不正确的参数");
+			} else if (option.has("purge")) {
 				int rate = 16;
 				if (option.has("rate") && option.isInteger("rate")) {
 					rate = option.getInteger("rate");
@@ -84,8 +87,10 @@ public class Commands implements CommandExecutor {
 			parser.addFilter("unban", FilterMode.WITH_ARGUMENT);
 			parser.addFilter("rate", FilterMode.WITH_ARGUMENT);
 			parser.addFilter("time", FilterMode.WITH_ARGUMENT);
-			ParsedOption option = parser.parse(args);
-			if (option.has("ban") && option.has("unban")) {
+			ParsedOption option = parser.parse(Arrays.copyOfRange(args, 1, args.length));
+			if (option.getSingleList().size() > 0) {
+				sender.sendMessage(ChatColor.RED + "错误的参数");
+			} else if (option.has("ban") && option.has("unban")) {
 				sender.sendMessage(ChatColor.RED + "错误的参数");
 			} else if (option.has("ban") && Bukkit.getPlayerExact(option.getString("ban")) != null) {
 				int rate = 2;
@@ -100,7 +105,7 @@ public class Commands implements CommandExecutor {
 				} else if (option.has("time")) {
 					time = -1;
 				}
-				if (rate > 3 || rate < 0) {
+				if (rate > 3 || rate < 1) {
 					sender.sendMessage(ChatColor.RED + "错误的网段参数");
 				} else if (time < 0) {
 					sender.sendMessage(ChatColor.RED + "错误的时间参数");

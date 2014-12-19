@@ -20,10 +20,9 @@ import com.mengcraft.server.protect.PluginKiller;
 import com.mengcraft.server.protect.ReBirth;
 import com.mengcraft.server.protect.Restart;
 import com.mengcraft.server.protect.SaveWorld;
-import com.mengcraft.server.protect.SpawnMob;
+import com.mengcraft.server.protect.AntiMobFarm;
 
 public class Protect extends JavaPlugin {
-	private final PluginKiller killer = new PluginKiller();
 
 	@Override
 	public void onLoad() {
@@ -47,7 +46,7 @@ public class Protect extends JavaPlugin {
 		}
 		if (getConfig().getBoolean("keepfarm.use", true)) {
 			Bukkit.getPluginManager().registerEvents(new AntiBreakFarm(), this);
-			this.killer.addName("FarmProtect");
+			PluginKiller.getKiller().addName("FarmProtect");
 			getLogger().info("防止耕地被破坏已开启");
 		}
 		if (getConfig().getBoolean("joinbot.use", true)) {
@@ -61,14 +60,14 @@ public class Protect extends JavaPlugin {
 			long delay = getConfig().getLong("saveworld.value", 60) * 20;
 			new SaveOffCommand().execute(getServer().getConsoleSender(), null, null);
 			getServer().getScheduler().runTaskTimer(this, new SaveWorld(), delay, delay);
-			this.killer.addName("AutoSaveWorld");
-			this.killer.addName("AutoSave");
-			this.killer.addName("NoSpawnChunks");
+			PluginKiller.getKiller().addName("AutoSaveWorld");
+			PluginKiller.getKiller().addName("AutoSave");
+			PluginKiller.getKiller().addName("NoSpawnChunks");
 			getLogger().info("流畅的保存地图已开启");
 		}
 		if (getConfig().getBoolean("spawnmob.use", true)) {
 			int value = getConfig().getInt("spawnmob.value", 16);
-			Bukkit.getPluginManager().registerEvents(new SpawnMob(value), this);
+			Bukkit.getPluginManager().registerEvents(new AntiMobFarm(value), this);
 			getLogger().info("防止密集养殖场已开启");
 		}
 		if (getConfig().getBoolean("spigot.use", true)) {
@@ -85,7 +84,7 @@ public class Protect extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(BannedSegmentManager.getManager().getEvents(), this);
 			Bukkit.getPluginManager().registerEvents(disk, this);
 			Bukkit.getPluginManager().registerEvents(new AntiOverload(), this);
-			Bukkit.getPluginManager().registerEvents(this.killer, this);
+			Bukkit.getPluginManager().registerEvents(PluginKiller.getKiller().getEvents(), this);
 			Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 			Bukkit.getScheduler().runTaskTimer(this, disk, 0, 18000);
 			getLogger().info("监控硬盘空间等已开启");
@@ -98,6 +97,6 @@ public class Protect extends JavaPlugin {
 		} catch (IOException e1) {
 			getLogger().warning("Cant link to mcstats.org!");
 		}
-		this.killer.runPluginKiller();
+		PluginKiller.getKiller().runPluginKiller();
 	}
 }

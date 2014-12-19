@@ -7,10 +7,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
-public class SpawnMob implements Listener {
+public class AntiMobFarm implements Listener {
 	private final int i;
 
-	public SpawnMob(int count) {
+	public AntiMobFarm(int count) {
 		this.i = count;
 	}
 
