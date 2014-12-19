@@ -25,7 +25,7 @@ public class Commands implements CommandExecutor {
 	private String[] getPluginInfo() {
 		String[] strings = new String[] {
 				ChatColor.GOLD + "/protect entity [world STRING]",
-				ChatColor.GOLD + "/protect entity purge ENTITY_TYPE [world STRING] [rate INT]",
+				ChatColor.GOLD + "/protect entity purge <ENTITY_TYPE|all> [world STRING] [rate INT]",
 				ChatColor.GOLD + "/protect chunk",
 				ChatColor.GOLD + "/protect chunk unload",
 				ChatColor.GOLD + "/protect ips",
@@ -235,20 +235,34 @@ public class Commands implements CommandExecutor {
 			entities.addAll(world.getEntities());
 		}
 		for (Entity entity : entities) {
-			if (!entity.getType().name().equals(typeName)) {
-				continue;
-			}
-			int rate = 0;
-			for (Entity near : entity.getNearbyEntities(16, 16, 16)) {
-				if (near.getType().equals(entity.getType())) {
-					rate = rate + 1;
-				}
-			}
-			if (rate > limit) {
-				entity.remove();
+			if (purgeEntityFilter(entity, typeName, limit)) {
 				total = total + 1;
+				entity.remove();
 			}
 		}
 		return new String(ChatColor.GOLD + "Purge entity " + typeName + " number: " + total);
+	}
+
+	private boolean purgeEntityFilter(Entity entity, String type, int limit) {
+		if (entity.getType().name().equals("PLAYER")) {
+			return false;
+		}
+		if (type.equals("all") || entity.getType().name().equals(type)) {
+			int rate = getNearbySameTypeNumber(entity);
+			if (rate >= limit) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private int getNearbySameTypeNumber(Entity entity) {
+		int rate = 0;
+		for (Entity near : entity.getNearbyEntities(16, 16, 16)) {
+			if (near.getType().equals(entity.getType())) {
+				rate = rate + 1;
+			}
+		}
+		return rate;
 	}
 }
