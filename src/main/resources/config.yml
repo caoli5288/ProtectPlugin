@@ -27,7 +27,7 @@ joinbot:
   # It allow a same IP login one time in {value} second
   # Please don't modify it if not necessary
   use: true
-  value: 60
+  value: 10
   
 saveworld:
   # This option save your world data every {value} second
