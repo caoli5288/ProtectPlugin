@@ -12,7 +12,6 @@ import com.mengcraft.server.protect.AntiExplosion;
 import com.mengcraft.server.protect.AntiJoinBot;
 import com.mengcraft.server.protect.AntiOverload;
 import com.mengcraft.server.protect.AntiRedClock;
-import com.mengcraft.server.protect.BannedSegmentManager;
 import com.mengcraft.server.protect.CheckDisk;
 import com.mengcraft.server.protect.Commands;
 import com.mengcraft.server.protect.ModifySpigot;
@@ -21,6 +20,8 @@ import com.mengcraft.server.protect.ReBirth;
 import com.mengcraft.server.protect.Restart;
 import com.mengcraft.server.protect.SaveWorld;
 import com.mengcraft.server.protect.AntiMobFarm;
+import com.mengcraft.server.protect.manager.BannedSegmentManager;
+import com.mengcraft.server.protect.manager.TickPerSecondManager;
 
 public class Protect extends JavaPlugin {
 
@@ -85,6 +86,7 @@ public class Protect extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(disk, this);
 			Bukkit.getPluginManager().registerEvents(new AntiOverload(), this);
 			Bukkit.getPluginManager().registerEvents(PluginKiller.getKiller().getEvents(), this);
+			Bukkit.getScheduler().runTaskTimer(this, TickPerSecondManager.getManager().getTask(), 1200, 1200);
 			Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 			Bukkit.getScheduler().runTaskTimer(this, disk, 0, 18000);
 			getLogger().info("监控硬盘空间等已开启");

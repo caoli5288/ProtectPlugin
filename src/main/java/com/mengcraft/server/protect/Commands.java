@@ -5,6 +5,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,8 +26,15 @@ import org.bukkit.entity.Player;
 import com.mengcraft.common.util.OptionParser;
 import com.mengcraft.common.util.OptionParser.FilterMode;
 import com.mengcraft.common.util.OptionParser.ParsedOption;
+import com.mengcraft.server.protect.manager.BannedSegmentManager;
+import com.mengcraft.server.protect.manager.TickPerSecondManager;
 
 public class Commands implements CommandExecutor {
+	private final ExecutorService pool = Executors.newCachedThreadPool();
+	private final static int INT_MB = 1048576;
+	private final static int INT_256_MB = 268435456;
+	private long memory = 0;
+	private long cpu = 0;
 
 	private String[] getPluginInfo() {
 		String[] strings = new String[] {
@@ -31,7 +44,9 @@ public class Commands implements CommandExecutor {
 				ChatColor.GOLD + "/protect chunk unload",
 				ChatColor.GOLD + "/protect ips",
 				ChatColor.GOLD + "/protect ips ban PLAYER [rate INT] [time INT_HOUR]",
-				ChatColor.GOLD + "/protect ips unban IP_SEGMENT"
+				ChatColor.GOLD + "/protect ips unban IP_SEGMENT",
+				ChatColor.GOLD + "/protect system",
+				ChatColor.GOLD + "/protect system test <mem|cpu>"
 		};
 		return strings;
 	}
@@ -119,8 +134,170 @@ public class Commands implements CommandExecutor {
 			} else {
 				sender.sendMessage(getBannedSegmentInfo());
 			}
+		} else if (args[0].equals("system")) {
+			OptionParser parser = new OptionParser();
+			parser.addFilter("test", FilterMode.WITH_ARGUMENT);
+			ParsedOption option = parser.parse(Arrays.copyOfRange(args, 1, args.length));
+			if (option.getSingleList().size() > 0) {
+				sender.sendMessage(ChatColor.RED + "错误的参数");
+			} else if (option.has("test") && option.getString("test").equals("mem")) {
+				sender.sendMessage(allocMemory());
+			} else if (option.has("test") && option.getString("test").equals("cpu")) {
+				sender.sendMessage(testProcessors());
+			}
+			else {
+				sender.sendMessage(getSystemInfo());
+			}
 		}
 		return true;
+	}
+
+	private class TestProcessorTask implements Callable<Integer> {
+		@Override
+		public Integer call() throws Exception {
+			int count = 0;
+			for (long time = System.currentTimeMillis() + 8000; System.currentTimeMillis() < time; count++) {
+				pi();
+			}
+			return count;
+		}
+
+		private void pi() {
+			for (double i = 1, pi = 0; i <= 16384; i = i + 1) {
+				pi = pi + Math.pow(-1, (i + 1)) * 4 / (2 * i - 1);
+			}
+		}
+	}
+
+	private class CheckTestTask implements Runnable {
+		private final CompletionService<Integer> service;
+		private final int thread;
+
+		@Override
+		public void run() {
+			int mark = 0;
+			for (int i = 0; i < this.thread; i++) {
+				try {
+					mark += this.service.take().get();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				} finally {
+					setMark(mark);
+				}
+			}
+		}
+
+		public CheckTestTask(CompletionService<Integer> service, int thread) {
+			this.service = service;
+			this.thread = thread;
+		}
+	}
+
+	private String[] testProcessors() {
+		List<String> strings = new ArrayList<>();
+		strings.add(ChatColor.RED + "尝试进行CPU测试...");
+		if (this.cpu > 0) {
+			strings.add(ChatColor.RED + "已经进行过CPU测试");
+			return strings.toArray(new String[] {});
+		} else if (this.cpu < 0) {
+			strings.add(ChatColor.RED + "正在进行中CPU测试");
+			return strings.toArray(new String[] {});
+		} else setMark(-1);
+		int proc = Runtime.getRuntime().availableProcessors();
+		int thread = proc > 4 ? 4 : proc;
+		CompletionService<Integer> service = new ExecutorCompletionService<>(this.pool);
+		Callable<Integer> task = new TestProcessorTask();
+		for (int i = 0; i < thread; i++) {
+			service.submit(task);
+		}
+		this.pool.execute(new CheckTestTask(service, thread));
+		strings.add(ChatColor.RED + "CPU测试在后台运行");
+		strings.add(ChatColor.RED + "请稍后尝试查看结果");
+		return strings.toArray(new String[] {});
+	}
+
+	private String[] allocMemory() {
+		List<String> strings = new ArrayList<>();
+		strings.add(ChatColor.RED + "尝试进行内存测试...");
+		if (this.memory > 0) {
+			strings.add(ChatColor.RED + "已经进行过内存测试");
+		} else if (this.memory < 0) {
+			strings.add(ChatColor.RED + "正在进行内存测试中");
+		} else {
+			this.pool.execute(new AllocMemory());
+			setMemory(-1);
+			strings.add(ChatColor.RED + "内存测试在后台运行");
+			strings.add(ChatColor.RED + "请稍后尝试查看结果");
+			strings.add(ChatColor.RED + "直接蹦服属内存虚标");
+		}
+		return strings.toArray(new String[] {});
+	}
+
+	private String[] getSystemInfo() {
+		Runtime runtime = Runtime.getRuntime();
+		List<String> strings = new ArrayList<>();
+		long free = runtime.freeMemory();
+		long used = runtime.totalMemory() - free;
+		strings.add(ChatColor.GOLD + "==== 内存信息 ====");
+		strings.add(ChatColor.GOLD + "实际使用: " + used / INT_MB + "MB");
+		strings.add(ChatColor.GOLD + "标称可用: " + runtime.maxMemory() / INT_MB + "MB");
+		if (this.memory > 0) {
+			strings.add(ChatColor.GOLD + "实际可用: " + this.memory / INT_MB + "MB");
+		} else {
+			strings.add(ChatColor.GOLD + "实际可用: 未测试");
+		}
+		strings.add(ChatColor.GOLD + "==== CPU信息 ====");
+		strings.add(ChatColor.GOLD + "最近TPS: " + getRecentTickPS());
+		if (this.cpu > 0) {
+			strings.add(ChatColor.GOLD + "CPU跑分: " + this.cpu);
+		} else if (this.cpu < 0) {
+			strings.add(ChatColor.GOLD + "CPU跑分: 测试中");
+		} else {
+			strings.add(ChatColor.GOLD + "CPU跑分: 未测试");
+		}
+		return strings.toArray(new String[] {});
+	}
+
+	private String getRecentTickPS() {
+		StringBuilder builder = new StringBuilder();
+		List<Double> recent = TickPerSecondManager.getManager().getTps();
+		for (int i = 0; i < recent.size(); i++) {
+			if (i > 0) {
+				builder.append(ChatColor.WHITE);
+				builder.append(",");
+			}
+			double last = recent.get(i);
+			if (last > 15) builder.append(ChatColor.GREEN);
+			else if (last > 10) builder.append(ChatColor.YELLOW);
+			else builder.append(ChatColor.RED);
+			builder.append(last);
+		}
+		return builder.toString();
+	}
+
+	private class AllocMemory implements Runnable {
+		@Override
+		public void run() {
+			Runtime runtime = Runtime.getRuntime();
+			long time = System.currentTimeMillis();
+			List<byte[]> temp = new ArrayList<>();
+			try {
+				long j = runtime.maxMemory() - runtime.totalMemory();
+				for (int i = 0, count = 0; i < j / INT_256_MB; i = i + 1) {
+					if (count > 1) break;
+					temp.add(new byte[INT_256_MB]);
+					if (System.currentTimeMillis() - time > 256) count++;
+					time = System.currentTimeMillis();
+				}
+			} catch (OutOfMemoryError e) {
+			} finally {
+				setMemory(runtime.totalMemory());
+				temp.clear();
+				System.gc();
+			}
+		}
 	}
 
 	private String[] getBannedSegmentInfo() {
@@ -231,9 +408,7 @@ public class Commands implements CommandExecutor {
 	}
 
 	private String purgeEntity(List<World> worlds, String typeName, int limit) {
-		if (typeName.equals("PLAYER")) {
-			return new String(ChatColor.GOLD + "You can not purge player entity");
-		}
+		if (typeName.equals("PLAYER")) { return new String(ChatColor.GOLD + "You can not purge player entity"); }
 		int total = 0;
 		List<Entity> entities = new ArrayList<>();
 		for (World world : worlds) {
@@ -249,14 +424,10 @@ public class Commands implements CommandExecutor {
 	}
 
 	private boolean purgeEntityFilter(Entity entity, String type, int limit) {
-		if (entity.getType().name().equals("PLAYER")) {
-			return false;
-		}
+		if (entity.getType().name().equals("PLAYER")) { return false; }
 		if (type.equals("all") || entity.getType().name().equals(type)) {
 			int rate = getNearbySameTypeNumber(entity);
-			if (rate >= limit) {
-				return true;
-			}
+			if (rate >= limit) { return true; }
 		}
 		return false;
 	}
@@ -269,5 +440,13 @@ public class Commands implements CommandExecutor {
 			}
 		}
 		return rate;
+	}
+
+	public void setMark(long cpu) {
+		this.cpu = cpu;
+	}
+
+	public void setMemory(long memory) {
+		this.memory = memory;
 	}
 }

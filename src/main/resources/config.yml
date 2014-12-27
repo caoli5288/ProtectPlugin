@@ -9,7 +9,7 @@ restart:
   # It act after {value} hours
   # It stop your server if online less then {limit}
   # WARN: Need a loop script to function
-  # if you need not a loop script please disable it
+  # if you havn't a loop script please disable it
   use: true
   value: 24
   limit: 0
