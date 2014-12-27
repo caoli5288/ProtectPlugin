@@ -5,10 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,7 +27,7 @@ import com.mengcraft.common.util.OptionParser.ParsedOption;
 
 public class Commands implements CommandExecutor {
 	private final static int INT_MB = 1048576;
-	private final static int INT_256_MB = 268435456;
+	private final static byte BYTE_ZERO = 0;
 	private long memory = 0;
 	private long cpu = 0;
 	private final ExecutorService pool = Executors.newCachedThreadPool();
@@ -141,7 +137,7 @@ public class Commands implements CommandExecutor {
 			if (option.getSingleList().size() > 0) {
 				sender.sendMessage(ChatColor.RED + "错误的参数");
 			} else if (option.has("test") && option.getString("test").equals("mem")) {
-				sender.sendMessage(allocMemory());
+				sender.sendMessage(testMemory());
 			} else if (option.has("test") && option.getString("test").equals("cpu")) {
 				sender.sendMessage(testProcessors());
 			}
@@ -150,6 +146,38 @@ public class Commands implements CommandExecutor {
 			}
 		}
 		return true;
+	}
+
+	private String[] testMemory() {
+		List<String> strings = new ArrayList<>();
+		strings.add(ChatColor.RED + "尝试进行内存测试...");
+		if (this.memory > 0) {
+			strings.add(ChatColor.RED + "已经进行过内存测试");
+			return strings.toArray(new String[] {});
+		} else if (this.memory < 0) {
+			strings.add(ChatColor.RED + "正在进行内存测试中");
+			return strings.toArray(new String[] {});
+		}
+		this.memory = -1;
+		this.pool.execute(new TestMemoryTask());
+		strings.add(ChatColor.RED + "内存测试在后台运行");
+		strings.add(ChatColor.RED + "请稍后尝试查看结果");
+		return strings.toArray(new String[] {});
+	}
+
+	private class TestMemoryTask implements Runnable {
+		@Override
+		public void run() {
+			int count = 0;
+			for (long time = System.currentTimeMillis() + 16000; System.currentTimeMillis() < time; count++) {
+				act();
+			}
+			setMemory(count / 8);
+		}
+
+		private void act() {
+			Arrays.fill(new byte[INT_MB], BYTE_ZERO);
+		}
 	}
 
 	private String[] testProcessors() {
@@ -161,110 +189,28 @@ public class Commands implements CommandExecutor {
 		} else if (this.cpu < 0) {
 			strings.add(ChatColor.RED + "正在进行CPU测试中");
 			return strings.toArray(new String[] {});
-		} else setMark(-1);
-		int proc = Runtime.getRuntime().availableProcessors();
-		int thread = proc >= 2 ? 2 : 1;
-		CompletionService<Integer> service = new ExecutorCompletionService<>(this.pool);
-		Callable<Integer> task = new TestProcessorTask();
-		for (int i = 0; i < thread; i++) {
-			service.submit(task);
 		}
-		this.pool.execute(new CheckTestTask(service, thread));
+		this.cpu = -1;
+		this.pool.execute(new TestProcessorTask());
+		this.pool.execute(new TestProcessorTask());
 		strings.add(ChatColor.RED + "CPU测试在后台运行");
 		strings.add(ChatColor.RED + "请稍后尝试查看结果");
 		return strings.toArray(new String[] {});
 	}
 
-	private class CheckTestTask implements Runnable {
-		private final CompletionService<Integer> service;
-		private final int thread;
-
+	private class TestProcessorTask implements Runnable {
 		@Override
 		public void run() {
-			int mark = 0;
-			for (int i = 0; i < this.thread; i++) {
-				try {
-					mark += this.service.take().get();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					e.printStackTrace();
-				} finally {
-					setMark(mark);
-				}
-			}
-		}
-
-		public CheckTestTask(CompletionService<Integer> service, int thread) {
-			this.service = service;
-			this.thread = thread;
-		}
-	}
-
-	private class TestProcessorTask implements Callable<Integer> {
-		@Override
-		public Integer call() throws Exception {
 			int count = 0;
 			for (long time = System.currentTimeMillis() + 16000; System.currentTimeMillis() < time; count++) {
 				pi();
 			}
-			return count;
+			setProcessor(count);
 		}
 
 		private void pi() {
 			for (double i = 1, pi = 0; i <= 16384; i = i + 1) {
 				pi = pi + Math.pow(-1, (i + 1)) * 4 / (2 * i - 1);
-			}
-		}
-	}
-
-	private String[] allocMemory() {
-		List<String> strings = new ArrayList<>();
-		strings.add(ChatColor.RED + "尝试进行内存测试...");
-		if (this.memory > 0) {
-			strings.add(ChatColor.RED + "已经进行过内存测试");
-		} else if (this.memory < 0) {
-			strings.add(ChatColor.RED + "正在进行内存测试中");
-		} else {
-			this.pool.execute(new AllocMemory());
-			setMemory(-1);
-			strings.add(ChatColor.RED + "内存测试在后台运行");
-			strings.add(ChatColor.RED + "请稍后尝试查看结果");
-			strings.add(ChatColor.RED + "直接蹦服属内存虚标");
-		}
-		return strings.toArray(new String[] {});
-	}
-
-	private class AllocMemory implements Runnable {
-		@Override
-		public void run() {
-			Runtime runtime = Runtime.getRuntime();
-			long time = System.currentTimeMillis();
-			List<byte[]> temp = new ArrayList<>();
-			long record = runtime.totalMemory();
-			try {
-				long j = runtime.maxMemory() - record;
-				for (int i = 0; i < j / INT_256_MB; i = i + 1) {
-					time = System.currentTimeMillis();
-					temp.add(new byte[INT_256_MB]);
-					if (System.currentTimeMillis() - time > 500) break;
-					// Record every step after allocate memory.
-					record += INT_256_MB;
-					Thread.sleep(3000);
-				}
-			} catch (OutOfMemoryError e) {
-				System.out.println("OOM");
-			} catch (InterruptedException e) {
-			} finally {
-				if (record + INT_256_MB > runtime.maxMemory()) {
-					setMemory(runtime.maxMemory());
-				} else {
-					// Not setMemory() with Runtime.totalMemory(),
-					// It's not accurate because of the strong GC.
-					setMemory(record);
-				}
-				temp.clear();
-				System.gc();
 			}
 		}
 	}
@@ -278,11 +224,11 @@ public class Commands implements CommandExecutor {
 		strings.add(ChatColor.GOLD + "实际使用: " + used / INT_MB + "MB");
 		strings.add(ChatColor.GOLD + "标称可用: " + runtime.maxMemory() / INT_MB + "MB");
 		if (this.memory > 0) {
-			strings.add(ChatColor.GOLD + "实际可用: " + this.memory / INT_MB + "MB");
+			strings.add(ChatColor.GOLD + "内存跑分: " + this.memory);
 		} else if (this.memory < 0) {
-			strings.add(ChatColor.GOLD + "实际可用: 测试中");
+			strings.add(ChatColor.GOLD + "内存跑分: 测试中");
 		} else {
-			strings.add(ChatColor.GOLD + "实际可用: 未测试");
+			strings.add(ChatColor.GOLD + "内存跑分: 未测试");
 		}
 		strings.add(ChatColor.GOLD + "===== CPU信息 =====");
 		strings.add(ChatColor.GOLD + "TPS: " + getRecentTickPS());
@@ -454,8 +400,8 @@ public class Commands implements CommandExecutor {
 		return rate;
 	}
 
-	public void setMark(long cpu) {
-		this.cpu = cpu;
+	public synchronized void setProcessor(long cpu) {
+		this.cpu += cpu;
 	}
 
 	public void setMemory(long memory) {
