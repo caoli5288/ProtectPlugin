@@ -152,21 +152,27 @@ public class Commands implements CommandExecutor {
 		return true;
 	}
 
-	private class TestProcessorTask implements Callable<Integer> {
-		@Override
-		public Integer call() throws Exception {
-			int count = 0;
-			for (long time = System.currentTimeMillis() + 8000; System.currentTimeMillis() < time; count++) {
-				pi();
-			}
-			return count;
+	private String[] testProcessors() {
+		List<String> strings = new ArrayList<>();
+		strings.add(ChatColor.RED + "尝试进行CPU测试...");
+		if (this.cpu > 0) {
+			strings.add(ChatColor.RED + "已经进行过CPU测试");
+			return strings.toArray(new String[] {});
+		} else if (this.cpu < 0) {
+			strings.add(ChatColor.RED + "正在进行CPU测试中");
+			return strings.toArray(new String[] {});
+		} else setMark(-1);
+		int proc = Runtime.getRuntime().availableProcessors();
+		int thread = proc > 4 ? 4 : proc;
+		CompletionService<Integer> service = new ExecutorCompletionService<>(this.pool);
+		Callable<Integer> task = new TestProcessorTask();
+		for (int i = 0; i < thread; i++) {
+			service.submit(task);
 		}
-
-		private void pi() {
-			for (double i = 1, pi = 0; i <= 16384; i = i + 1) {
-				pi = pi + Math.pow(-1, (i + 1)) * 4 / (2 * i - 1);
-			}
-		}
+		this.pool.execute(new CheckTestTask(service, thread));
+		strings.add(ChatColor.RED + "CPU测试在后台运行");
+		strings.add(ChatColor.RED + "请稍后尝试查看结果");
+		return strings.toArray(new String[] {});
 	}
 
 	private class CheckTestTask implements Runnable {
@@ -195,27 +201,21 @@ public class Commands implements CommandExecutor {
 		}
 	}
 
-	private String[] testProcessors() {
-		List<String> strings = new ArrayList<>();
-		strings.add(ChatColor.RED + "尝试进行CPU测试...");
-		if (this.cpu > 0) {
-			strings.add(ChatColor.RED + "已经进行过CPU测试");
-			return strings.toArray(new String[] {});
-		} else if (this.cpu < 0) {
-			strings.add(ChatColor.RED + "正在进行中CPU测试");
-			return strings.toArray(new String[] {});
-		} else setMark(-1);
-		int proc = Runtime.getRuntime().availableProcessors();
-		int thread = proc > 4 ? 4 : proc;
-		CompletionService<Integer> service = new ExecutorCompletionService<>(this.pool);
-		Callable<Integer> task = new TestProcessorTask();
-		for (int i = 0; i < thread; i++) {
-			service.submit(task);
+	private class TestProcessorTask implements Callable<Integer> {
+		@Override
+		public Integer call() throws Exception {
+			int count = 0;
+			for (long time = System.currentTimeMillis() + 8000; System.currentTimeMillis() < time; count++) {
+				pi();
+			}
+			return count;
 		}
-		this.pool.execute(new CheckTestTask(service, thread));
-		strings.add(ChatColor.RED + "CPU测试在后台运行");
-		strings.add(ChatColor.RED + "请稍后尝试查看结果");
-		return strings.toArray(new String[] {});
+
+		private void pi() {
+			for (double i = 1, pi = 0; i <= 16384; i = i + 1) {
+				pi = pi + Math.pow(-1, (i + 1)) * 4 / (2 * i - 1);
+			}
+		}
 	}
 
 	private String[] allocMemory() {
@@ -235,12 +235,39 @@ public class Commands implements CommandExecutor {
 		return strings.toArray(new String[] {});
 	}
 
+	private class AllocMemory implements Runnable {
+		@Override
+		public void run() {
+			Runtime runtime = Runtime.getRuntime();
+			long time = System.currentTimeMillis();
+			List<byte[]> temp = new ArrayList<>();
+			try {
+				long j = runtime.maxMemory() - runtime.totalMemory();
+				for (int i = 0, count = 0; i < j / INT_256_MB; i = i + 1) {
+					if (count > 1) break;
+					temp.add(new byte[INT_256_MB]);
+					if (System.currentTimeMillis() - time > 256) count++;
+					time = System.currentTimeMillis();
+				}
+			} catch (OutOfMemoryError e) {
+			} finally {
+				if (runtime.totalMemory() + INT_256_MB > runtime.maxMemory()) {
+					setMemory(runtime.maxMemory());
+				} else {
+					setMemory(runtime.totalMemory());
+				}
+				temp.clear();
+				System.gc();
+			}
+		}
+	}
+
 	private String[] getSystemInfo() {
 		Runtime runtime = Runtime.getRuntime();
 		List<String> strings = new ArrayList<>();
 		long free = runtime.freeMemory();
 		long used = runtime.totalMemory() - free;
-		strings.add(ChatColor.GOLD + "==== 内存信息 ====");
+		strings.add(ChatColor.GOLD + "===== 内存信息 =====");
 		strings.add(ChatColor.GOLD + "实际使用: " + used / INT_MB + "MB");
 		strings.add(ChatColor.GOLD + "标称可用: " + runtime.maxMemory() / INT_MB + "MB");
 		if (this.memory > 0) {
@@ -248,8 +275,8 @@ public class Commands implements CommandExecutor {
 		} else {
 			strings.add(ChatColor.GOLD + "实际可用: 未测试");
 		}
-		strings.add(ChatColor.GOLD + "==== CPU信息 ====");
-		strings.add(ChatColor.GOLD + "最近TPS: " + getRecentTickPS());
+		strings.add(ChatColor.GOLD + "===== CPU信息 =====");
+		strings.add(ChatColor.GOLD + "TPS: " + getRecentTickPS());
 		if (this.cpu > 0) {
 			strings.add(ChatColor.GOLD + "CPU跑分: " + this.cpu);
 		} else if (this.cpu < 0) {
@@ -275,29 +302,6 @@ public class Commands implements CommandExecutor {
 			builder.append(last);
 		}
 		return builder.toString();
-	}
-
-	private class AllocMemory implements Runnable {
-		@Override
-		public void run() {
-			Runtime runtime = Runtime.getRuntime();
-			long time = System.currentTimeMillis();
-			List<byte[]> temp = new ArrayList<>();
-			try {
-				long j = runtime.maxMemory() - runtime.totalMemory();
-				for (int i = 0, count = 0; i < j / INT_256_MB; i = i + 1) {
-					if (count > 1) break;
-					temp.add(new byte[INT_256_MB]);
-					if (System.currentTimeMillis() - time > 256) count++;
-					time = System.currentTimeMillis();
-				}
-			} catch (OutOfMemoryError e) {
-			} finally {
-				setMemory(runtime.totalMemory());
-				temp.clear();
-				System.gc();
-			}
-		}
 	}
 
 	private String[] getBannedSegmentInfo() {
