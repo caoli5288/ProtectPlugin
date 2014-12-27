@@ -39,7 +39,7 @@ public class Commands implements CommandExecutor {
 	private String[] getPluginInfo() {
 		String[] strings = new String[] {
 				ChatColor.GOLD + "/protect entity [world STRING]",
-				ChatColor.GOLD + "/protect entity purge <ENTITY_TYPE|all> [world STRING] [rate INT]",
+				ChatColor.GOLD + "/protect entity purge <TYPE|all> [world STR] [rate INT]",
 				ChatColor.GOLD + "/protect chunk",
 				ChatColor.GOLD + "/protect chunk unload",
 				ChatColor.GOLD + "/protect ips",
@@ -163,7 +163,7 @@ public class Commands implements CommandExecutor {
 			return strings.toArray(new String[] {});
 		} else setMark(-1);
 		int proc = Runtime.getRuntime().availableProcessors();
-		int thread = proc > 4 ? 4 : proc;
+		int thread = proc >= 2 ? 2 : 1;
 		CompletionService<Integer> service = new ExecutorCompletionService<>(this.pool);
 		Callable<Integer> task = new TestProcessorTask();
 		for (int i = 0; i < thread; i++) {
@@ -205,7 +205,7 @@ public class Commands implements CommandExecutor {
 		@Override
 		public Integer call() throws Exception {
 			int count = 0;
-			for (long time = System.currentTimeMillis() + 8000; System.currentTimeMillis() < time; count++) {
+			for (long time = System.currentTimeMillis() + 16000; System.currentTimeMillis() < time; count++) {
 				pi();
 			}
 			return count;
@@ -241,20 +241,27 @@ public class Commands implements CommandExecutor {
 			Runtime runtime = Runtime.getRuntime();
 			long time = System.currentTimeMillis();
 			List<byte[]> temp = new ArrayList<>();
+			long record = runtime.totalMemory();
 			try {
-				long j = runtime.maxMemory() - runtime.totalMemory();
-				for (int i = 0, count = 0; i < j / INT_256_MB; i = i + 1) {
-					if (count > 1) break;
-					temp.add(new byte[INT_256_MB]);
-					if (System.currentTimeMillis() - time > 256) count++;
+				long j = runtime.maxMemory() - record;
+				for (int i = 0; i < j / INT_256_MB; i = i + 1) {
 					time = System.currentTimeMillis();
+					temp.add(new byte[INT_256_MB]);
+					if (System.currentTimeMillis() - time > 500) break;
+					// Record every step after allocate memory.
+					record += INT_256_MB;
+					Thread.sleep(3000);
 				}
 			} catch (OutOfMemoryError e) {
+				System.out.println("OOM");
+			} catch (InterruptedException e) {
 			} finally {
-				if (runtime.totalMemory() + INT_256_MB > runtime.maxMemory()) {
+				if (record + INT_256_MB > runtime.maxMemory()) {
 					setMemory(runtime.maxMemory());
 				} else {
-					setMemory(runtime.totalMemory());
+					// Not setMemory() with Runtime.totalMemory(),
+					// It's not accurate because of the strong GC.
+					setMemory(record);
 				}
 				temp.clear();
 				System.gc();
@@ -272,6 +279,8 @@ public class Commands implements CommandExecutor {
 		strings.add(ChatColor.GOLD + "标称可用: " + runtime.maxMemory() / INT_MB + "MB");
 		if (this.memory > 0) {
 			strings.add(ChatColor.GOLD + "实际可用: " + this.memory / INT_MB + "MB");
+		} else if (this.memory < 0) {
+			strings.add(ChatColor.GOLD + "实际可用: 测试中");
 		} else {
 			strings.add(ChatColor.GOLD + "实际可用: 未测试");
 		}
