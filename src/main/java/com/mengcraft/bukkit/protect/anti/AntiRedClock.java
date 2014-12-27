@@ -1,4 +1,4 @@
-package com.mengcraft.server.protect;
+package com.mengcraft.bukkit.protect.anti;
 
 import java.util.ArrayList;
 import java.util.HashMap;

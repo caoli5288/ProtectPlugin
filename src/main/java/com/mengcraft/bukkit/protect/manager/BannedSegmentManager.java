@@ -1,4 +1,4 @@
-package com.mengcraft.server.protect.manager;
+package com.mengcraft.bukkit.protect.manager;
 
 import java.io.BufferedWriter;
 import java.io.File;

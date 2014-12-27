@@ -1,4 +1,4 @@
-package com.mengcraft.server.protect;
+package com.mengcraft.bukkit.protect.anti;
 
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;

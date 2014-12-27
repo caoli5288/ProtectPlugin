@@ -1,6 +1,6 @@
 name: ${project.name}
 version: ${project.version}
-main: com.mengcraft.server.Protect
+main: ${project.groupId}.${project.artifactId}.${project.name}
 commands:
   protect:
     description: Admin command for this.

@@ -1,4 +1,4 @@
-package com.mengcraft.server.protect;
+package com.mengcraft.bukkit.protect.anti;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

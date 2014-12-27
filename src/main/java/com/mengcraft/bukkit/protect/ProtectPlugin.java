@@ -1,4 +1,4 @@
-package com.mengcraft.server;
+package com.mengcraft.bukkit.protect;
 
 import java.io.IOException;
 
@@ -7,23 +7,16 @@ import org.bukkit.command.defaults.SaveOffCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
-import com.mengcraft.server.protect.AntiBreakFarm;
-import com.mengcraft.server.protect.AntiExplosion;
-import com.mengcraft.server.protect.AntiJoinBot;
-import com.mengcraft.server.protect.AntiOverload;
-import com.mengcraft.server.protect.AntiRedClock;
-import com.mengcraft.server.protect.CheckDisk;
-import com.mengcraft.server.protect.Commands;
-import com.mengcraft.server.protect.ModifySpigot;
-import com.mengcraft.server.protect.PluginKiller;
-import com.mengcraft.server.protect.ReBirth;
-import com.mengcraft.server.protect.Restart;
-import com.mengcraft.server.protect.SaveWorld;
-import com.mengcraft.server.protect.AntiMobFarm;
-import com.mengcraft.server.protect.manager.BannedSegmentManager;
-import com.mengcraft.server.protect.manager.TickPerSecondManager;
+import com.mengcraft.bukkit.protect.anti.AntiBreakFarm;
+import com.mengcraft.bukkit.protect.anti.AntiExplosion;
+import com.mengcraft.bukkit.protect.anti.AntiJoinBot;
+import com.mengcraft.bukkit.protect.anti.AntiMobFarm;
+import com.mengcraft.bukkit.protect.anti.AntiOverload;
+import com.mengcraft.bukkit.protect.anti.AntiRedClock;
+import com.mengcraft.bukkit.protect.manager.BannedSegmentManager;
+import com.mengcraft.bukkit.protect.manager.TickPerSecondManager;
 
-public class Protect extends JavaPlugin {
+public class ProtectPlugin extends JavaPlugin {
 
 	@Override
 	public void onLoad() {

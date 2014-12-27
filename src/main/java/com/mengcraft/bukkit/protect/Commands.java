@@ -1,4 +1,4 @@
-package com.mengcraft.server.protect;
+package com.mengcraft.bukkit.protect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,18 +23,18 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import com.mengcraft.bukkit.protect.manager.BannedSegmentManager;
+import com.mengcraft.bukkit.protect.manager.TickPerSecondManager;
 import com.mengcraft.common.util.OptionParser;
 import com.mengcraft.common.util.OptionParser.FilterMode;
 import com.mengcraft.common.util.OptionParser.ParsedOption;
-import com.mengcraft.server.protect.manager.BannedSegmentManager;
-import com.mengcraft.server.protect.manager.TickPerSecondManager;
 
 public class Commands implements CommandExecutor {
-	private final ExecutorService pool = Executors.newCachedThreadPool();
 	private final static int INT_MB = 1048576;
 	private final static int INT_256_MB = 268435456;
 	private long memory = 0;
 	private long cpu = 0;
+	private final ExecutorService pool = Executors.newCachedThreadPool();
 
 	private String[] getPluginInfo() {
 		String[] strings = new String[] {
@@ -367,7 +367,6 @@ public class Commands implements CommandExecutor {
 		messages.add(ChatColor.GOLD + "TOTAL: " + total);
 		int size = messages.size();
 		return messages.toArray(new String[size]);
-
 	}
 
 	private String[] getEntityInfo() {

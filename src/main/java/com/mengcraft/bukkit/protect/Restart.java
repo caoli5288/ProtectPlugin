@@ -1,4 +1,4 @@
-package com.mengcraft.server.protect;
+package com.mengcraft.bukkit.protect;
 
 import org.bukkit.Bukkit;
 
