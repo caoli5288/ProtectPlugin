@@ -1,5 +1,6 @@
 package com.mengcraft.bukkit.protect;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -221,8 +222,8 @@ public class Commands implements CommandExecutor {
 		long free = runtime.freeMemory();
 		long used = runtime.totalMemory() - free;
 		strings.add(ChatColor.GOLD + "===== 内存信息 =====");
-		strings.add(ChatColor.GOLD + "实际使用: " + used / INT_MB + "MB");
-		strings.add(ChatColor.GOLD + "标称可用: " + runtime.maxMemory() / INT_MB + "MB");
+		strings.add(ChatColor.GOLD + "已用内存: " + used / INT_MB + "MB");
+		strings.add(ChatColor.GOLD + "最大内存: " + free / INT_MB + "MB");
 		if (this.memory > 0) {
 			strings.add(ChatColor.GOLD + "内存跑分: " + this.memory);
 		} else if (this.memory < 0) {
@@ -239,6 +240,10 @@ public class Commands implements CommandExecutor {
 		} else {
 			strings.add(ChatColor.GOLD + "CPU跑分: 未测试");
 		}
+		File file = new File(".");
+		strings.add(ChatColor.GOLD + "===== 硬盘信息 =====");
+		strings.add(ChatColor.GOLD + "空闲空间: " + file.getFreeSpace() / INT_MB + "MB");
+		strings.add(ChatColor.GOLD + "硬盘跑分: 待更新");
 		return strings.toArray(new String[] {});
 	}
 
