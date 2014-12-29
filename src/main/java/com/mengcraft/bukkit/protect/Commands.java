@@ -152,17 +152,18 @@ public class Commands implements CommandExecutor {
 	private String[] testMemory() {
 		List<String> strings = new ArrayList<>();
 		strings.add(ChatColor.RED + "尝试进行内存测试...");
-		if (this.memory > 0) {
+		if (this.cpu < 0) {
+			strings.add(ChatColor.RED + "请等待CPU测试完毕");
+		} else if (this.memory > 0) {
 			strings.add(ChatColor.RED + "已经进行过内存测试");
-			return strings.toArray(new String[] {});
 		} else if (this.memory < 0) {
 			strings.add(ChatColor.RED + "正在进行内存测试中");
-			return strings.toArray(new String[] {});
+		} else {
+			this.memory = -1;
+			this.pool.execute(new TestMemoryTask());
+			strings.add(ChatColor.RED + "内存测试在后台运行");
+			strings.add(ChatColor.RED + "请稍后尝试查看结果");
 		}
-		this.memory = -1;
-		this.pool.execute(new TestMemoryTask());
-		strings.add(ChatColor.RED + "内存测试在后台运行");
-		strings.add(ChatColor.RED + "请稍后尝试查看结果");
 		return strings.toArray(new String[] {});
 	}
 
@@ -184,18 +185,21 @@ public class Commands implements CommandExecutor {
 	private String[] testProcessors() {
 		List<String> strings = new ArrayList<>();
 		strings.add(ChatColor.RED + "尝试进行CPU测试...");
-		if (this.cpu > 0) {
+		if (this.memory < 0) {
+			strings.add(ChatColor.RED + "请等待内存测试完毕");
+		} else if (this.cpu > 0) {
 			strings.add(ChatColor.RED + "已经进行过CPU测试");
 			return strings.toArray(new String[] {});
 		} else if (this.cpu < 0) {
 			strings.add(ChatColor.RED + "正在进行CPU测试中");
 			return strings.toArray(new String[] {});
+		} else {
+			this.cpu = -1;
+			this.pool.execute(new TestProcessorTask());
+			this.pool.execute(new TestProcessorTask());
+			strings.add(ChatColor.RED + "CPU测试在后台运行");
+			strings.add(ChatColor.RED + "请稍后尝试查看结果");
 		}
-		this.cpu = -1;
-		this.pool.execute(new TestProcessorTask());
-		this.pool.execute(new TestProcessorTask());
-		strings.add(ChatColor.RED + "CPU测试在后台运行");
-		strings.add(ChatColor.RED + "请稍后尝试查看结果");
 		return strings.toArray(new String[] {});
 	}
 
