@@ -25,7 +25,7 @@ public class PlayerRecordManager {
 	private final Events events = new Events();
 
 	public PlayerRecordManager() {
-		File file = new File("cached-player-record.dat");
+		File file = new File("cached-player-record.txt");
 		if (file.exists()) {
 			init(file);
 		}
@@ -43,12 +43,12 @@ public class PlayerRecordManager {
 		try {
 			FileWriter out = new FileWriter(new File("cached-player-record.txt"));
 			BufferedWriter writer = new BufferedWriter(out);
-			List<Record> n = new ArrayList<>(this.map.values());
-			for (int i = 0; i < n.size(); i = i + 1) {
+			List<Record> lines = new ArrayList<>(this.map.values());
+			for (int i = 0; i < lines.size(); i = i + 1) {
 				if (i > 0) {
 					writer.newLine();
 				}
-				writer.write(n.get(i).getName() + "|" + n.get(i).getAddr() + "|" + n.get(i).getLast());
+				writer.write(lines.get(i).toString());
 			}
 			writer.close();
 		} catch (IOException e) {
@@ -109,6 +109,11 @@ public class PlayerRecordManager {
 
 		public String getName() {
 			return name;
+		}
+
+		@Override
+		public String toString() {
+			return getName() + "|" + getAddr() + "|" + getLast();
 		}
 	}
 }

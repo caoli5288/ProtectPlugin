@@ -13,10 +13,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
+
+import com.mengcraft.bukkit.protect.util.TimeUtil;
 
 public class BannedIPSManager {
 	private final static BannedIPSManager MANAGER = new BannedIPSManager();
@@ -43,13 +46,20 @@ public class BannedIPSManager {
 
 	public String[] getMessage() {
 		List<String> strings = new ArrayList<>();
+		strings.add(ChatColor.RED + "===== 封禁的网段 =====");
 		for (Segment segment : this.segments.values()) {
-			strings.add(segment.toString());
+			TimeUtil time = new TimeUtil(segment.getUntil() - System.currentTimeMillis());
+			StringBuilder builder = new StringBuilder();
+			builder.append(ChatColor.RED);
+			builder.append("地址: ").append(segment.getHost()).append(", ");
+			builder.append("段落: ").append(segment.getLimit()).append(", ");
+			builder.append("剩余: ").append(time.getDay()).append("日").append(time.getHour()).append("时");
+			strings.add(builder.toString());
 		}
 		if (strings.size() < 1) {
-			strings.add("N/A");
+			strings.add(ChatColor.RED + ":-) 暂无");
 		}
-		return strings.toArray(new String[strings.size()]);
+		return strings.toArray(new String[]{});
 	}
 
 	public void createRecord(String addr, int limit, long until) {
@@ -144,23 +154,22 @@ public class BannedIPSManager {
 
 	private class Segment {
 		private final String host;
-		private int limit;
+		private final int limit;
 		private final byte[] segment;
 		private final long until;
 
 		public Segment(String addr, int limit, long until) {
 			this.host = addr;
 			this.limit = limit;
-			// this.segment = Arrays.copyOf(addr.getAddress(), limit);
 			this.segment = getAddrByte(addr, limit);
 			this.until = until;
 		}
 
 		public boolean contains(InetAddress key) {
-			if (System.currentTimeMillis() > this.until) {
+			if (System.currentTimeMillis() > this.getUntil()) {
 				return false;
-			} else if (Arrays.equals(this.segment, Arrays.copyOf(key.getAddress(), this.limit))) {
-				// This one ohhh
+			} else if (Arrays.equals(this.segment, Arrays.copyOf(key.getAddress(), this.getLimit()))) {
+				// This one oh oh oh
 				return true;
 			}
 			return false;
@@ -168,7 +177,19 @@ public class BannedIPSManager {
 
 		@Override
 		public String toString() {
-			return new StringBuilder().append(this.host).append("|").append(this.limit).append("|").append(this.until).toString();
+			return getHost() + "|" + getLimit() + "|" + getUntil();
+		}
+
+		public long getUntil() {
+			return until;
+		}
+
+		public String getHost() {
+			return host;
+		}
+
+		public int getLimit() {
+			return limit;
 		}
 	}
 }
