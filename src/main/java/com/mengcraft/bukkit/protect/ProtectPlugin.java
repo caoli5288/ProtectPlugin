@@ -14,6 +14,7 @@ import com.mengcraft.bukkit.protect.anti.AntiMobFarm;
 import com.mengcraft.bukkit.protect.anti.AntiOverload;
 import com.mengcraft.bukkit.protect.anti.AntiRedClock;
 import com.mengcraft.bukkit.protect.manager.BannedSegmentManager;
+import com.mengcraft.bukkit.protect.manager.PlayerRecordManager;
 import com.mengcraft.bukkit.protect.manager.TickPerSecondManager;
 
 public class ProtectPlugin extends JavaPlugin {
@@ -79,6 +80,7 @@ public class ProtectPlugin extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(disk, this);
 			Bukkit.getPluginManager().registerEvents(new AntiOverload(), this);
 			Bukkit.getPluginManager().registerEvents(PluginKiller.getKiller().getEvents(), this);
+			Bukkit.getPluginManager().registerEvents(PlayerRecordManager.getManager().getEvents(), this);
 			Bukkit.getScheduler().runTaskTimer(this, TickPerSecondManager.getManager().getTask(), 1200, 1200);
 			Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 			Bukkit.getScheduler().runTaskTimer(this, disk, 0, 18000);
@@ -93,5 +95,10 @@ public class ProtectPlugin extends JavaPlugin {
 			getLogger().warning("Cant link to mcstats.org!");
 		}
 		PluginKiller.getKiller().runPluginKiller();
+	}
+
+	@Override
+	public void onDisable() {
+		PlayerRecordManager.getManager().save();
 	}
 }
