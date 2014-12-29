@@ -20,17 +20,19 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import com.mengcraft.bukkit.protect.manager.BannedSegmentManager;
+import com.mengcraft.bukkit.protect.manager.BannedIPSManager;
+import com.mengcraft.bukkit.protect.manager.PlayerRecordManager;
 import com.mengcraft.bukkit.protect.manager.TickPerSecondManager;
+import com.mengcraft.bukkit.protect.util.TimeUtil;
 import com.mengcraft.common.util.OptionParser;
 import com.mengcraft.common.util.OptionParser.FilterMode;
 import com.mengcraft.common.util.OptionParser.ParsedOption;
 
 public class Commands implements CommandExecutor {
-	private final static int INT_MB = 1048576;
+	private final static int SIZE_MB_INT = 1048576;
 	private final static byte BYTE_ZERO = 0;
-	private long memory = 0;
-	private long cpu = 0;
+	private long memory = 0L;
+	private long cpu = 0L;
 	private final ExecutorService pool = Executors.newCachedThreadPool();
 
 	private String[] getPluginInfo() {
@@ -40,7 +42,7 @@ public class Commands implements CommandExecutor {
 				ChatColor.GOLD + "/protect chunk",
 				ChatColor.GOLD + "/protect chunk unload",
 				ChatColor.GOLD + "/protect ips",
-				ChatColor.GOLD + "/protect ips ban PLAYER [rate INT] [time INT_HOUR]",
+				ChatColor.GOLD + "/protect ips ban PLAYER [rate INT] [time INT_DAY]",
 				ChatColor.GOLD + "/protect ips unban IP_SEGMENT",
 				ChatColor.GOLD + "/protect system",
 				ChatColor.GOLD + "/protect system test <mem|cpu>"
@@ -104,14 +106,14 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(ChatColor.RED + "错误的参数");
 			} else if (option.has("ban") && option.has("unban")) {
 				sender.sendMessage(ChatColor.RED + "错误的参数");
-			} else if (option.has("ban") && Bukkit.getPlayerExact(option.getString("ban")) != null) {
+			} else if (option.has("ban") && PlayerRecordManager.getManager().getRecord(option.getString("ban")) != null) {
 				int rate = 2;
 				if (option.has("rate") && option.isInteger("rate")) {
 					rate = option.getInteger("rate");
 				} else if (option.has("rate")) {
 					rate = -1;
 				}
-				int time = 24;
+				int time = 7;
 				if (option.has("time") && option.isInteger("time")) {
 					time = option.getInteger("time");
 				} else if (option.has("time")) {
@@ -125,11 +127,11 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(ban(option.getString("ban"), rate, time));
 				}
 			} else if (option.has("ban")) {
-				sender.sendMessage(ChatColor.RED + "玩家不在线或不存在");
+				sender.sendMessage(ChatColor.RED + "玩家不存在");
 			} else if (option.has("unban")) {
 				sender.sendMessage(unban(option.getString("unban")));
 			} else {
-				sender.sendMessage(getBannedSegmentInfo());
+				sender.sendMessage(getBannedInfo());
 			}
 		} else if (args[0].equals("system")) {
 			OptionParser parser = new OptionParser();
@@ -178,7 +180,7 @@ public class Commands implements CommandExecutor {
 		}
 
 		private void act() {
-			Arrays.fill(new byte[INT_MB], BYTE_ZERO);
+			Arrays.fill(new byte[SIZE_MB_INT], BYTE_ZERO);
 		}
 	}
 
@@ -226,8 +228,8 @@ public class Commands implements CommandExecutor {
 		long free = runtime.freeMemory();
 		long used = runtime.totalMemory() - free;
 		strings.add(ChatColor.GOLD + "===== 内存信息 =====");
-		strings.add(ChatColor.GOLD + "已用内存: " + used / INT_MB + "MB");
-		strings.add(ChatColor.GOLD + "最大内存: " + runtime.maxMemory() / INT_MB + "MB");
+		strings.add(ChatColor.GOLD + "已用内存: " + used / SIZE_MB_INT + "MB");
+		strings.add(ChatColor.GOLD + "最大内存: " + runtime.maxMemory() / SIZE_MB_INT + "MB");
 		if (this.memory > 0) {
 			strings.add(ChatColor.GOLD + "内存跑分: " + this.memory);
 		} else if (this.memory < 0) {
@@ -246,7 +248,7 @@ public class Commands implements CommandExecutor {
 		}
 		File file = new File(".");
 		strings.add(ChatColor.GOLD + "===== 硬盘信息 =====");
-		strings.add(ChatColor.GOLD + "空闲空间: " + file.getFreeSpace() / INT_MB + "MB");
+		strings.add(ChatColor.GOLD + "空闲空间: " + file.getFreeSpace() / SIZE_MB_INT + "MB");
 		strings.add(ChatColor.GOLD + "硬盘跑分: 待更新");
 		return strings.toArray(new String[] {});
 	}
@@ -268,25 +270,26 @@ public class Commands implements CommandExecutor {
 		return builder.toString();
 	}
 
-	private String[] getBannedSegmentInfo() {
-		return BannedSegmentManager.getManager().getMessage();
+	private String[] getBannedInfo() {
+		return BannedIPSManager.getManager().getMessage();
 	}
 
 	private String unban(String string) {
-		boolean result = BannedSegmentManager.getManager().remove(string);
+		boolean result = BannedIPSManager.getManager().remove(string);
 		if (result) {
-			BannedSegmentManager.getManager().saveLines();
+			BannedIPSManager.getManager().saveLines();
 			return ChatColor.GOLD + "解除封禁成功";
 		}
 		return ChatColor.RED + "解除封禁失败";
 	}
 
 	private String ban(String name, int rate, int time) {
-		long untill = System.currentTimeMillis() + time * 3600000;
-		BannedSegmentManager.getManager().createNew(Bukkit.getPlayerExact(name).getAddress().getAddress(), rate, untill);
-		BannedSegmentManager.getManager().saveLines();
+		long until = System.currentTimeMillis() + time * TimeUtil.TIME_DAY;
+		String addr = PlayerRecordManager.getManager().getRecord(name).getAddr();
+		BannedIPSManager.getManager().createRecord(addr, rate, until);
+		BannedIPSManager.getManager().saveLines();
 		filterOnline();
-		return ChatColor.GOLD + "封禁IP段" + time + "小时成功";
+		return ChatColor.GOLD + "封禁IP段" + time + "天成功";
 	}
 
 	private void filterOnline() {
@@ -296,7 +299,7 @@ public class Commands implements CommandExecutor {
 	}
 
 	private void filterPlayer(Player player) {
-		if (BannedSegmentManager.getManager().contains(player.getAddress().getAddress())) {
+		if (BannedIPSManager.getManager().contains(player.getAddress().getAddress())) {
 			player.kickPlayer("你的IP段已被服务器临时封禁");
 		}
 	}
@@ -409,11 +412,11 @@ public class Commands implements CommandExecutor {
 		return rate;
 	}
 
-	public synchronized void setProcessor(long cpu) {
+	private synchronized void setProcessor(long cpu) {
 		this.cpu += cpu;
 	}
 
-	public void setMemory(long memory) {
+	private void setMemory(long memory) {
 		this.memory = memory;
 	}
 }

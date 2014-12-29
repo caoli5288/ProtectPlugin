@@ -16,8 +16,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import com.mengcraft.bukkit.protect.util.TimeUtil;
+
 public class PlayerRecordManager {
-	private final static long TIME_MOON_LONG = 2592000000L;
 
 	private final static PlayerRecordManager MANAGER = new PlayerRecordManager();
 	private final Map<String, Record> map = new HashMap<>();
@@ -67,7 +68,7 @@ public class PlayerRecordManager {
 	}
 
 	private void initRecord(String[] data) {
-		if (new Long(data[2]) + TIME_MOON_LONG > System.currentTimeMillis()) {
+		if (new Long(data[2]) + TimeUtil.TIME_30_DAY > System.currentTimeMillis()) {
 			this.map.put(data[0], new Record(data[0], data[1]));
 		}
 	}
@@ -87,7 +88,7 @@ public class PlayerRecordManager {
 		}
 	}
 
-	private class Record {
+	public class Record {
 		private final String name;
 		private final String addr;
 		private final long last;

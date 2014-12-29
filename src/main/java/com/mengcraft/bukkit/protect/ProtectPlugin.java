@@ -13,7 +13,7 @@ import com.mengcraft.bukkit.protect.anti.AntiJoinBot;
 import com.mengcraft.bukkit.protect.anti.AntiMobFarm;
 import com.mengcraft.bukkit.protect.anti.AntiOverload;
 import com.mengcraft.bukkit.protect.anti.AntiRedClock;
-import com.mengcraft.bukkit.protect.manager.BannedSegmentManager;
+import com.mengcraft.bukkit.protect.manager.BannedIPSManager;
 import com.mengcraft.bukkit.protect.manager.PlayerRecordManager;
 import com.mengcraft.bukkit.protect.manager.TickPerSecondManager;
 
@@ -76,7 +76,7 @@ public class ProtectPlugin extends JavaPlugin {
 		}
 		if (true) {
 			CheckDisk disk = new CheckDisk();
-			Bukkit.getPluginManager().registerEvents(BannedSegmentManager.getManager().getEvents(), this);
+			Bukkit.getPluginManager().registerEvents(BannedIPSManager.getManager().getEvents(), this);
 			Bukkit.getPluginManager().registerEvents(disk, this);
 			Bukkit.getPluginManager().registerEvents(new AntiOverload(), this);
 			Bukkit.getPluginManager().registerEvents(PluginKiller.getKiller().getEvents(), this);

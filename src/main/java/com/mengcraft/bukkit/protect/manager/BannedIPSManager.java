@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -19,12 +18,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 
-public class BannedSegmentManager {
-	private final static BannedSegmentManager MANAGER = new BannedSegmentManager();
+public class BannedIPSManager {
+	private final static BannedIPSManager MANAGER = new BannedIPSManager();
 	private final Events events = new Events();
 	private final Map<String, Segment> segments = new HashMap<>();
 
-	private BannedSegmentManager() {
+	private BannedIPSManager() {
 		File file = new File("banned-ip-segments.txt");
 		if (file.exists()) {
 			initFile(file);
@@ -34,7 +33,7 @@ public class BannedSegmentManager {
 		}
 	}
 
-	public static BannedSegmentManager getManager() {
+	public static BannedIPSManager getManager() {
 		return MANAGER;
 	}
 
@@ -44,7 +43,7 @@ public class BannedSegmentManager {
 
 	public String[] getMessage() {
 		List<String> strings = new ArrayList<>();
-		for(Segment segment : this.segments.values()) {
+		for (Segment segment : this.segments.values()) {
 			strings.add(segment.toString());
 		}
 		if (strings.size() < 1) {
@@ -53,8 +52,8 @@ public class BannedSegmentManager {
 		return strings.toArray(new String[strings.size()]);
 	}
 
-	public void createNew(InetAddress addr, int limit, long untill) {
-		this.segments.put(addr.getHostAddress(), new Segment(addr, limit, untill));
+	public void createRecord(String addr, int limit, long until) {
+		this.segments.put(addr, new Segment(addr, limit, until));
 	}
 
 	public boolean remove(String string) {
@@ -71,9 +70,7 @@ public class BannedSegmentManager {
 
 	public boolean contains(InetAddress addr) {
 		for (Segment segment : this.segments.values()) {
-			if (segment.contains(addr)) {
-				return true;
-			}
+			if (segment.contains(addr)) { return true; }
 		}
 		return false;
 	}
@@ -103,20 +100,16 @@ public class BannedSegmentManager {
 
 	private void parseLines(List<String> lines) {
 		for (String line : lines) {
-			parseLines(line);
+			parseLine(line);
 		}
 	}
 
-	private void parseLines(String line) {
+	private void parseLine(String line) {
 		String[] split = line.split("\\|");
-		if (new Long(split[2]) < System.currentTimeMillis()) {
-			return;
-		}
+		if (new Long(split[2]) < System.currentTimeMillis()) { return; }
 		try {
-			createNew(InetAddress.getByName(split[0]), new Integer(split[1]), new Long(split[2]));
+			createRecord(split[0], new Integer(split[1]), new Long(split[2]));
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}
@@ -133,30 +126,41 @@ public class BannedSegmentManager {
 	private class Events implements Listener {
 		@EventHandler
 		public void onLogin(PlayerLoginEvent event) {
-			if (BannedSegmentManager.getManager().contains(event.getAddress())) {
+			if (BannedIPSManager.getManager().contains(event.getAddress())) {
 				event.setResult(Result.KICK_BANNED);
 				event.setKickMessage("你的IP段已被服务器临时封禁");
 			}
 		}
 	}
 
+	private byte[] getAddrByte(String addr, int limit) {
+		String[] segment = addr.split("\\.");
+		byte[] bs = new byte[limit];
+		for (int i = 0; i < bs.length; i++) {
+			bs[i] = new Integer(segment[i]).byteValue();
+		}
+		return bs;
+	}
+
 	private class Segment {
 		private final String host;
 		private int limit;
 		private final byte[] segment;
-		private final long untill;
+		private final long until;
 
-		public Segment(InetAddress addr, int limit, long untill) {
-			this.host = addr.getHostAddress();
+		public Segment(String addr, int limit, long until) {
+			this.host = addr;
 			this.limit = limit;
-			this.segment = Arrays.copyOf(addr.getAddress(), limit);
-			this.untill = untill;
+			// this.segment = Arrays.copyOf(addr.getAddress(), limit);
+			this.segment = getAddrByte(addr, limit);
+			this.until = until;
 		}
 
 		public boolean contains(InetAddress key) {
-			if (System.currentTimeMillis() > this.untill) {
+			if (System.currentTimeMillis() > this.until) {
 				return false;
-			} else if (Arrays.equals(this.segment, Arrays.copyOf(key.getAddress(), this.segment.length))) {
+			} else if (Arrays.equals(this.segment, Arrays.copyOf(key.getAddress(), this.limit))) {
+				// This one ohhh
 				return true;
 			}
 			return false;
@@ -164,7 +168,7 @@ public class BannedSegmentManager {
 
 		@Override
 		public String toString() {
-			return new StringBuilder().append(this.host).append("|").append(this.limit).append("|").append(this.untill).toString();
+			return new StringBuilder().append(this.host).append("|").append(this.limit).append("|").append(this.until).toString();
 		}
 	}
 }
