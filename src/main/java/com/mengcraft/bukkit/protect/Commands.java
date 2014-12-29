@@ -223,7 +223,7 @@ public class Commands implements CommandExecutor {
 		long used = runtime.totalMemory() - free;
 		strings.add(ChatColor.GOLD + "===== 内存信息 =====");
 		strings.add(ChatColor.GOLD + "已用内存: " + used / INT_MB + "MB");
-		strings.add(ChatColor.GOLD + "最大内存: " + free / INT_MB + "MB");
+		strings.add(ChatColor.GOLD + "最大内存: " + runtime.maxMemory() / INT_MB + "MB");
 		if (this.memory > 0) {
 			strings.add(ChatColor.GOLD + "内存跑分: " + this.memory);
 		} else if (this.memory < 0) {
