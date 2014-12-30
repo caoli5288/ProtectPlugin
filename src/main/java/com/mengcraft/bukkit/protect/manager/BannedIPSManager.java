@@ -48,18 +48,25 @@ public class BannedIPSManager {
 		List<String> strings = new ArrayList<>();
 		strings.add(ChatColor.RED + "===== 封禁的网段 =====");
 		for (Segment segment : this.segments.values()) {
-			TimeUtil time = new TimeUtil(segment.getUntil() - System.currentTimeMillis());
+
 			StringBuilder builder = new StringBuilder();
 			builder.append(ChatColor.RED);
 			builder.append("地址: ").append(segment.getHost()).append(", ");
 			builder.append("段落: ").append(segment.getLimit()).append(", ");
-			builder.append("剩余: ").append(time.getDay()).append("日").append(time.getHour()).append("时");
+			if (segment.getUntil() < 0) {
+				builder.append("剩余: ").append("永久封禁");
+			} else if (segment.getUntil() < System.currentTimeMillis()) {
+				builder.append("剩余: ").append("已经失效");
+			} else {
+				TimeUtil time = new TimeUtil(segment.getUntil() - System.currentTimeMillis());
+				builder.append("剩余: ").append(time.getDay()).append("日").append(time.getHour()).append("时");
+			}
 			strings.add(builder.toString());
 		}
 		if (strings.size() < 1) {
 			strings.add(ChatColor.RED + ":-) 暂无");
 		}
-		return strings.toArray(new String[]{});
+		return strings.toArray(new String[] {});
 	}
 
 	public void createRecord(String addr, int limit, long until) {
