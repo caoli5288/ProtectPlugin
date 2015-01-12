@@ -11,9 +11,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
-public class RedStoneManager {
+public class RedstoneManager {
 	
-	private final static RedStoneManager MANAGER = new RedStoneManager(); 
+	private final static RedstoneManager MANAGER = new RedstoneManager(); 
 
 	private final Map<Block, Integer> map = new HashMap<>();
 
@@ -85,7 +85,7 @@ public class RedStoneManager {
 		return new Task(this.map, limit);
 	}
 
-	public static RedStoneManager getManager() {
+	public static RedstoneManager getManager() {
 		return MANAGER;
 	}
 

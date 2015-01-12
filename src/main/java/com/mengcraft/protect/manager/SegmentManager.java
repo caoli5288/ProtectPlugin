@@ -9,24 +9,20 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.bukkit.ChatColor;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
 
-import com.mengcraft.protect.util.TimeUtil;
+import com.mengcraft.protect.util.StringMap;
+import com.mengcraft.protect.util.TimeUtils;
 
-public class BannedIPSManager {
-	private final static BannedIPSManager MANAGER = new BannedIPSManager();
-	private final Events events = new Events();
-	private final Map<String, Segment> segments = new HashMap<>();
+public class SegmentManager {
 
-	private BannedIPSManager() {
+	private final static SegmentManager MANAGER = new SegmentManager();
+
+	private final StringMap<Segment> segments = new StringMap<>();
+
+	private SegmentManager() {
 		File file = new File("banned-ip-segments.txt");
 		if (file.exists()) {
 			initFile(file);
@@ -36,12 +32,8 @@ public class BannedIPSManager {
 		}
 	}
 
-	public static BannedIPSManager getManager() {
+	public static SegmentManager getManager() {
 		return MANAGER;
-	}
-
-	public Events getEvents() {
-		return events;
 	}
 
 	public String[] getMessage() {
@@ -58,7 +50,7 @@ public class BannedIPSManager {
 			} else if (segment.getUntil() < System.currentTimeMillis()) {
 				builder.append("剩余: ").append("已经失效");
 			} else {
-				TimeUtil time = new TimeUtil(segment.getUntil() - System.currentTimeMillis());
+				TimeUtils time = new TimeUtils(segment.getUntil() - System.currentTimeMillis());
 				builder.append("剩余: ").append(time.getDay()).append("日").append(time.getHour()).append("时");
 			}
 			strings.add(builder.toString());
@@ -87,7 +79,9 @@ public class BannedIPSManager {
 
 	public boolean contains(InetAddress addr) {
 		for (Segment segment : this.segments.values()) {
-			if (segment.contains(addr)) { return true; }
+			if (segment.contains(addr)) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -123,7 +117,9 @@ public class BannedIPSManager {
 
 	private void parseLine(String line) {
 		String[] split = line.split("\\|");
-		if (new Long(split[2]) < System.currentTimeMillis()) { return; }
+		if (new Long(split[2]) < System.currentTimeMillis()) {
+			return;
+		}
 		try {
 			createRecord(split[0], new Integer(split[1]), new Long(split[2]));
 		} catch (NumberFormatException e) {
@@ -140,17 +136,7 @@ public class BannedIPSManager {
 		return new ArrayList<>();
 	}
 
-	private class Events implements Listener {
-		@EventHandler
-		public void onLogin(PlayerLoginEvent event) {
-			if (BannedIPSManager.getManager().contains(event.getAddress())) {
-				event.setResult(Result.KICK_BANNED);
-				event.setKickMessage("你的IP段已被服务器临时封禁");
-			}
-		}
-	}
-
-	private byte[] getAddrByte(String addr, int limit) {
+	public static byte[] getAddrByte(String addr, int limit) {
 		String[] segment = addr.split("\\.");
 		byte[] bs = new byte[limit];
 		for (int i = 0; i < bs.length; i++) {
@@ -160,6 +146,7 @@ public class BannedIPSManager {
 	}
 
 	private class Segment {
+		
 		private final String host;
 		private final int limit;
 		private final byte[] segment;
@@ -168,15 +155,14 @@ public class BannedIPSManager {
 		public Segment(String addr, int limit, long until) {
 			this.host = addr;
 			this.limit = limit;
-			this.segment = getAddrByte(addr, limit);
+			this.segment = SegmentManager.getAddrByte(addr, limit);
 			this.until = until;
 		}
 
 		public boolean contains(InetAddress key) {
 			if (System.currentTimeMillis() > this.getUntil()) {
-				return false;
+				// TIME HAS PAST
 			} else if (Arrays.equals(this.segment, Arrays.copyOf(key.getAddress(), this.getLimit()))) {
-				// This one oh oh oh
 				return true;
 			}
 			return false;

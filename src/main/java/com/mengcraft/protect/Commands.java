@@ -21,11 +21,11 @@ import org.bukkit.entity.Player;
 import com.mengcraft.common.util.OptionParser;
 import com.mengcraft.common.util.OptionParser.FilterMode;
 import com.mengcraft.common.util.OptionParser.ParsedOption;
-import com.mengcraft.protect.manager.BannedIPSManager;
 import com.mengcraft.protect.manager.EntityManager;
-import com.mengcraft.protect.manager.PlayerRecordManager;
-import com.mengcraft.protect.manager.TickPSManager;
-import com.mengcraft.protect.util.TimeUtil;
+import com.mengcraft.protect.manager.PlayerManager;
+import com.mengcraft.protect.manager.SegmentManager;
+import com.mengcraft.protect.manager.TickManager;
+import com.mengcraft.protect.util.TimeUtils;
 
 public class Commands implements CommandExecutor {
 
@@ -112,7 +112,7 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(ChatColor.RED + "错误的参数");
 			} else if (option.has("ban") && option.has("unban")) {
 				sender.sendMessage(ChatColor.RED + "错误的参数");
-			} else if (option.has("ban") && PlayerRecordManager.getManager().getRecord(option.getString("ban")) != null) {
+			} else if (option.has("ban") && PlayerManager.getManager().hasPlayer(option.getString("ban"))) {
 				int rate = 2;
 				if (option.has("rate") && option.isInteger("rate")) {
 					rate = option.getInteger("rate");
@@ -292,7 +292,7 @@ public class Commands implements CommandExecutor {
 
 	private String getRecentTickPS() {
 		StringBuilder builder = new StringBuilder();
-		List<Double> recent = TickPSManager.getManager().getTps();
+		List<Double> recent = TickManager.getManager().getTps();
 		for (int i = 0; i < recent.size(); i++) {
 			if (i > 0) {
 				builder.append(ChatColor.WHITE);
@@ -308,23 +308,23 @@ public class Commands implements CommandExecutor {
 	}
 
 	private String[] getBannedInfo() {
-		return BannedIPSManager.getManager().getMessage();
+		return SegmentManager.getManager().getMessage();
 	}
 
 	private String unban(String string) {
-		boolean result = BannedIPSManager.getManager().remove(string);
+		boolean result = SegmentManager.getManager().remove(string);
 		if (result) {
-			BannedIPSManager.getManager().saveLines();
+			SegmentManager.getManager().saveLines();
 			return ChatColor.GOLD + "解除封禁成功";
 		}
 		return ChatColor.RED + "解除封禁失败";
 	}
 
 	private String ban(String name, int rate, int time) {
-		long until = System.currentTimeMillis() + time * TimeUtil.TIME_DAY;
-		String addr = PlayerRecordManager.getManager().getRecord(name).getAddr();
-		BannedIPSManager.getManager().createRecord(addr, rate, until);
-		BannedIPSManager.getManager().saveLines();
+		long until = System.currentTimeMillis() + time * TimeUtils.TIME_DAY;
+		String addr = PlayerManager.getManager().getAddress(name);
+		SegmentManager.getManager().createRecord(addr, rate, until);
+		SegmentManager.getManager().saveLines();
 		filterOnline();
 		return ChatColor.GOLD + "封禁IP段" + time + "天成功";
 	}
@@ -336,7 +336,7 @@ public class Commands implements CommandExecutor {
 	}
 
 	private void filterPlayer(Player player) {
-		if (BannedIPSManager.getManager().contains(player.getAddress().getAddress())) {
+		if (SegmentManager.getManager().contains(player.getAddress().getAddress())) {
 			player.kickPlayer("你的IP段已被服务器临时封禁");
 		}
 	}

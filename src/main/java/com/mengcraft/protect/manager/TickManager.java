@@ -5,13 +5,13 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TickPSManager {
-	private final static TickPSManager MANAGER = new TickPSManager();
+public class TickManager {
+	private final static TickManager MANAGER = new TickManager();
 	private final Task task = new Task();
 	private final List<Double> tps = new ArrayList<>();
 	private long last = System.currentTimeMillis();
 
-	public TickPSManager() {
+	public TickManager() {
 		tps.add(20.0);
 	}
 
@@ -30,7 +30,7 @@ public class TickPSManager {
 		};
 	}
 
-	public static TickPSManager getManager() {
+	public static TickManager getManager() {
 		return MANAGER;
 	}
 

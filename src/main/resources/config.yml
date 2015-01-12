@@ -21,14 +21,6 @@ spawnmob:
   use: true
   value: 16
   
-joinbot:
-  # This option protect joinbot crash your server
-  # It allow 30 player login in {value} second
-  # It allow a same IP login one time in {value} second
-  # Please don't modify it if not necessary
-  use: true
-  value: 10
-  
 saveworld:
   # This option save your world data every {value} second
   # Disable "AutoSave" and "AutoSaveWorld" automatic
@@ -53,5 +45,3 @@ spigot:
   # Please don't modify it if not necessary
   use: true
   value: 4
-
-version: 0.2.3
