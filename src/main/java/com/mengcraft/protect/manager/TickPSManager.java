@@ -1,4 +1,4 @@
-package com.mengcraft.bukkit.protect.manager;
+package com.mengcraft.protect.manager;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

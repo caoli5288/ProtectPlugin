@@ -1,11 +1,11 @@
-package com.mengcraft.bukkit.protect;
+package com.mengcraft.protect;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,24 +16,30 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import com.mengcraft.bukkit.protect.manager.BannedIPSManager;
-import com.mengcraft.bukkit.protect.manager.PlayerRecordManager;
-import com.mengcraft.bukkit.protect.manager.TickPSManager;
-import com.mengcraft.bukkit.protect.util.TimeUtil;
 import com.mengcraft.common.util.OptionParser;
 import com.mengcraft.common.util.OptionParser.FilterMode;
 import com.mengcraft.common.util.OptionParser.ParsedOption;
+import com.mengcraft.protect.manager.BannedIPSManager;
+import com.mengcraft.protect.manager.EntityManager;
+import com.mengcraft.protect.manager.PlayerRecordManager;
+import com.mengcraft.protect.manager.TickPSManager;
+import com.mengcraft.protect.util.TimeUtil;
 
 public class Commands implements CommandExecutor {
+
+	private final ProtectPlugin plugin;
+
 	private final static int SIZE_MB_INT = 1048576;
 	private final static byte BYTE_ZERO = 0;
 	private long memory = 0L;
 	private long cpu = 0L;
 	private final ExecutorService pool = Executors.newCachedThreadPool();
+
+	public Commands(ProtectPlugin protect) {
+		this.plugin = protect;
+	}
 
 	private String[] getPluginInfo() {
 		String[] strings = new String[] {
@@ -79,7 +85,7 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(purgeEntity(option.getString("purge"), rate));
 				}
 			} else if (option.has("world") && Bukkit.getWorld(option.getString("world")) != null) {
-				sender.sendMessage(getEntityInfo(Bukkit.getWorld(option.getString("world"))));
+				sender.sendMessage(getEntityInfo(this.plugin.getServer().getWorld(option.getString("world"))));
 			} else if (option.has("world")) {
 				sender.sendMessage(ChatColor.RED + "错误的世界名");
 			} else {
@@ -149,6 +155,37 @@ public class Commands implements CommandExecutor {
 			}
 		}
 		return true;
+	}
+
+	private String[] getEntityInfo() {
+		List<World> worlds = this.plugin.getServer().getWorlds();
+		return getEntityInfo(EntityManager.getManager().getEntityInfo(worlds));
+	}
+
+	private String[] getEntityInfo(World world) {
+		return getEntityInfo(EntityManager.getManager().getEntityInfo(world));
+	}
+
+	private String[] getEntityInfo(Map<String, Integer> map) {
+		List<String> list = new ArrayList<>();
+		int count = 0;
+		for (Entry<String, Integer> entry : map.entrySet()) {
+			list.add(ChatColor.GOLD + entry.getKey() + ": " + entry.getValue());
+			count += entry.getValue();
+		}
+		list.add(ChatColor.RED + "TATOL: " + count);
+		return list.toArray(new String[] {});
+	}
+
+	private String purgeEntity(String type, int rate) {
+		List<World> worlds = this.plugin.getServer().getWorlds();
+		int count = EntityManager.getManager().purgeEntity(worlds, type.toUpperCase(), rate);
+		return ChatColor.GOLD + "Purge done: " + count;
+	}
+
+	private String purgeEntity(World world, String type, int rate) {
+		int count = EntityManager.getManager().purgeEntity(world, type.toUpperCase(), rate);
+		return ChatColor.GOLD + "Purge done: " + count;
 	}
 
 	private String[] testMemory() {
@@ -304,42 +341,6 @@ public class Commands implements CommandExecutor {
 		}
 	}
 
-	private String[] getEntityInfo(World world) {
-		List<World> worlds = new ArrayList<>();
-		worlds.add(world);
-		return getEntityInfo(worlds);
-	}
-
-	private String[] getEntityInfo(List<World> worlds) {
-		Map<EntityType, Integer> entityMap = new HashMap<>();
-		int total = 0;
-		List<Entity> entities = new ArrayList<>();
-		for (World world : worlds) {
-			entities.addAll(world.getEntities());
-		}
-		for (Entity entity : entities) {
-			EntityType type = entity.getType();
-			if (entityMap.get(type) != null) {
-				int value = entityMap.remove(type);
-				entityMap.put(type, value + 1);
-			} else {
-				entityMap.put(type, 1);
-			}
-			total = total + 1;
-		}
-		List<String> messages = new ArrayList<>();
-		for (EntityType type : entityMap.keySet()) {
-			messages.add(ChatColor.GOLD + type.name() + ": " + entityMap.get(type));
-		}
-		messages.add(ChatColor.GOLD + "TOTAL: " + total);
-		int size = messages.size();
-		return messages.toArray(new String[size]);
-	}
-
-	private String[] getEntityInfo() {
-		return getEntityInfo(Bukkit.getWorlds());
-	}
-
 	private String[] getChunkInfo() {
 		List<String> messages = new ArrayList<>();
 		int total = 0;
@@ -365,51 +366,6 @@ public class Commands implements CommandExecutor {
 		}
 		i = i - j;
 		return new String(ChatColor.GOLD + "Purge chunk number: " + i);
-	}
-
-	private String purgeEntity(String typeName, int limit) {
-		return purgeEntity(Bukkit.getWorlds(), typeName, limit);
-	}
-
-	private String purgeEntity(World world, String typeName, int limit) {
-		List<World> worlds = new ArrayList<>();
-		worlds.add(world);
-		return purgeEntity(worlds, typeName, limit);
-	}
-
-	private String purgeEntity(List<World> worlds, String typeName, int limit) {
-		if (typeName.equals("PLAYER")) { return new String(ChatColor.GOLD + "You can not purge player entity"); }
-		int total = 0;
-		List<Entity> entities = new ArrayList<>();
-		for (World world : worlds) {
-			entities.addAll(world.getEntities());
-		}
-		for (Entity entity : entities) {
-			if (purgeEntityFilter(entity, typeName, limit)) {
-				total = total + 1;
-				entity.remove();
-			}
-		}
-		return new String(ChatColor.GOLD + "Purge entity " + typeName + " number: " + total);
-	}
-
-	private boolean purgeEntityFilter(Entity entity, String type, int limit) {
-		if (entity.getType().name().equals("PLAYER")) { return false; }
-		if (type.equals("all") || entity.getType().name().equals(type)) {
-			int rate = getNearbySameTypeNumber(entity);
-			if (rate >= limit) { return true; }
-		}
-		return false;
-	}
-
-	private int getNearbySameTypeNumber(Entity entity) {
-		int rate = 0;
-		for (Entity near : entity.getNearbyEntities(16, 16, 16)) {
-			if (near.getType().equals(entity.getType())) {
-				rate = rate + 1;
-			}
-		}
-		return rate;
 	}
 
 	private synchronized void setProcessor(long cpu) {

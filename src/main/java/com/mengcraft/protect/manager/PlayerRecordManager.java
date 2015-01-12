@@ -1,4 +1,4 @@
-package com.mengcraft.bukkit.protect.manager;
+package com.mengcraft.protect.manager;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,7 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import com.mengcraft.bukkit.protect.util.TimeUtil;
+import com.mengcraft.protect.util.TimeUtil;
 
 public class PlayerRecordManager {
 

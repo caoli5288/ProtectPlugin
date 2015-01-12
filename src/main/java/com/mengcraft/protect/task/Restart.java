@@ -1,4 +1,4 @@
-package com.mengcraft.bukkit.protect;
+package com.mengcraft.protect.task;
 
 import org.bukkit.Bukkit;
 

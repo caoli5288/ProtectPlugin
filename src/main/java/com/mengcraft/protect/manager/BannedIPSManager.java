@@ -1,4 +1,4 @@
-package com.mengcraft.bukkit.protect.manager;
+package com.mengcraft.protect.manager;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,7 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 
-import com.mengcraft.bukkit.protect.util.TimeUtil;
+import com.mengcraft.protect.util.TimeUtil;
 
 public class BannedIPSManager {
 	private final static BannedIPSManager MANAGER = new BannedIPSManager();

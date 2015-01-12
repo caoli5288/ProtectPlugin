@@ -1,4 +1,4 @@
-package com.mengcraft.bukkit.protect.util;
+package com.mengcraft.protect.util;
 
 public class TimeUtil {
 	public final static long TIME_30_DAY = 2592000000L;

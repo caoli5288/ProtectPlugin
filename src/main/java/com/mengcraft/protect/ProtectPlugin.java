@@ -1,4 +1,4 @@
-package com.mengcraft.bukkit.protect;
+package com.mengcraft.protect;
 
 import java.io.IOException;
 
@@ -7,17 +7,23 @@ import org.bukkit.command.defaults.SaveOffCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
-import com.mengcraft.bukkit.protect.anti.AntiBreakFarm;
-import com.mengcraft.bukkit.protect.anti.AntiExplosion;
-import com.mengcraft.bukkit.protect.anti.AntiJoinBot;
-import com.mengcraft.bukkit.protect.anti.AntiMobFarm;
-import com.mengcraft.bukkit.protect.anti.AntiOverload;
-import com.mengcraft.bukkit.protect.anti.AntiRedClock;
-import com.mengcraft.bukkit.protect.manager.BannedIPSManager;
-import com.mengcraft.bukkit.protect.manager.PlayerRecordManager;
-import com.mengcraft.bukkit.protect.manager.TickPSManager;
+import com.mengcraft.protect.listener.AntiBreakFarm;
+import com.mengcraft.protect.listener.AntiExplosion;
+import com.mengcraft.protect.listener.AntiJoinBot;
+import com.mengcraft.protect.listener.AntiOverload;
+import com.mengcraft.protect.manager.BannedIPSManager;
+import com.mengcraft.protect.manager.EntityManager;
+import com.mengcraft.protect.manager.PlayerRecordManager;
+import com.mengcraft.protect.manager.RedStoneManager;
+import com.mengcraft.protect.manager.TickPSManager;
+import com.mengcraft.protect.task.ModifySpigot;
+import com.mengcraft.protect.task.ReBirth;
+import com.mengcraft.protect.task.Restart;
+import com.mengcraft.protect.task.SaveWorld;
 
 public class ProtectPlugin extends JavaPlugin {
+
+	private final PluginKiller killer = PluginKiller.getKiller();
 
 	@Override
 	public void onLoad() {
@@ -27,10 +33,10 @@ public class ProtectPlugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		if (getConfig().getBoolean("redclock.use", true)) {
-			int limit = getConfig().getInt("redclock.value", 25);
-			AntiRedClock red = new AntiRedClock(limit);
-			Bukkit.getPluginManager().registerEvents(red, this);
-			Bukkit.getScheduler().runTaskTimer(this, red, 20, 20);
+			int limit = getConfig().getInt("redclock.value", 30);
+			RedStoneManager manager = RedStoneManager.getManager();
+			Bukkit.getPluginManager().registerEvents(manager.getEvents(), this);
+			Bukkit.getScheduler().runTaskTimer(this, manager.getTask(limit), 20, 20);
 			getLogger().info("防止超高频电路已开启");
 		}
 		if (getConfig().getBoolean("restart.use", true)) {
@@ -41,7 +47,7 @@ public class ProtectPlugin extends JavaPlugin {
 		}
 		if (getConfig().getBoolean("keepfarm.use", true)) {
 			Bukkit.getPluginManager().registerEvents(new AntiBreakFarm(), this);
-			PluginKiller.getKiller().addName("FarmProtect");
+			getKiller().addName("FarmProtect");
 			getLogger().info("防止耕地被破坏已开启");
 		}
 		if (getConfig().getBoolean("joinbot.use", true)) {
@@ -55,14 +61,15 @@ public class ProtectPlugin extends JavaPlugin {
 			long delay = getConfig().getLong("saveworld.value", 60) * 20;
 			new SaveOffCommand().execute(getServer().getConsoleSender(), null, null);
 			getServer().getScheduler().runTaskTimer(this, new SaveWorld(), delay, delay);
-			PluginKiller.getKiller().addName("AutoSaveWorld");
-			PluginKiller.getKiller().addName("AutoSave");
-			PluginKiller.getKiller().addName("NoSpawnChunks");
+			getKiller().addName("AutoSaveWorld");
+			getKiller().addName("AutoSave");
+			getKiller().addName("NoSpawnChunks");
 			getLogger().info("流畅的保存地图已开启");
 		}
 		if (getConfig().getBoolean("spawnmob.use", true)) {
 			int value = getConfig().getInt("spawnmob.value", 16);
-			Bukkit.getPluginManager().registerEvents(new AntiMobFarm(value), this);
+			EntityManager manager = EntityManager.getManager();
+			Bukkit.getPluginManager().registerEvents(manager.getEvents(value), this);
 			getLogger().info("防止密集养殖场已开启");
 		}
 		if (getConfig().getBoolean("spigot.use", true)) {
@@ -74,31 +81,30 @@ public class ProtectPlugin extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(new AntiExplosion(), this);
 			getLogger().info("防止爆炸毁地图已开启");
 		}
-		if (true) {
-			CheckDisk disk = new CheckDisk();
-			Bukkit.getPluginManager().registerEvents(BannedIPSManager.getManager().getEvents(), this);
-			Bukkit.getPluginManager().registerEvents(disk, this);
-			Bukkit.getPluginManager().registerEvents(new AntiOverload(), this);
-			Bukkit.getPluginManager().registerEvents(PluginKiller.getKiller().getEvents(), this);
-			Bukkit.getPluginManager().registerEvents(PlayerRecordManager.getManager().getEvents(), this);
-			Bukkit.getScheduler().runTaskTimer(this, TickPSManager.getManager().getTask(), 1200, 1200);
-			Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
-			Bukkit.getScheduler().runTaskTimer(this, disk, 0, 18000);
-			getLogger().info("监控硬盘空间等已开启");
-		}
-		getLogger().info("欢迎使用梦梦家服务器");
-		getLogger().info("http://www.mengcraft.com");
-		getCommand("protect").setExecutor(new Commands());
+		Bukkit.getPluginManager().registerEvents(BannedIPSManager.getManager().getEvents(), this);
+		Bukkit.getPluginManager().registerEvents(new AntiOverload(), this);
+		Bukkit.getPluginManager().registerEvents(getKiller().getEvents(), this);
+		Bukkit.getPluginManager().registerEvents(PlayerRecordManager.getManager().getEvents(), this);
+		Bukkit.getScheduler().runTaskTimer(this, TickPSManager.getManager().getTask(), 1200, 1200);
+		Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
+		getLogger().info("监控硬盘空间等已开启");
+		getLogger().info("梦梦家服务器官网地址");
+		getLogger().info("www.mengcraft.com");
+		getCommand("protect").setExecutor(new Commands(this));
 		try {
 			new Metrics(this).start();
-		} catch (IOException e1) {
+		} catch (IOException e) {
 			getLogger().warning("Cant link to mcstats.org!");
 		}
-		PluginKiller.getKiller().runPluginKiller();
+		getKiller().runPluginKiller();
 	}
 
 	@Override
 	public void onDisable() {
 		PlayerRecordManager.getManager().save();
+	}
+
+	public PluginKiller getKiller() {
+		return killer;
 	}
 }

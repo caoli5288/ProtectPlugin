@@ -1,4 +1,4 @@
-package com.mengcraft.bukkit.protect;
+package com.mengcraft.protect;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -14,7 +14,9 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
 public class PluginKiller {
+	
 	private final static PluginKiller KILLER = new PluginKiller();
+	
 	private final Events events = new Events();
 	private final List<String> names = new ArrayList<>();
 	private final List<Plugin> markedPlugins = new ArrayList<>();
@@ -79,11 +81,13 @@ public class PluginKiller {
 	}
 
 	private class Events implements Listener {
+		
 		@EventHandler
 		public void onPluginEnable(PluginEnableEvent event) {
 			if (PluginKiller.getKiller().getNames().contains(event.getPlugin().getName())) {
 				event.getPlugin().getPluginLoader().disablePlugin(event.getPlugin());
 			}
 		}
+		
 	}
 }
