@@ -29,9 +29,16 @@ public class AntiRedClock implements Runnable, Listener {
 			}
 		}
 		for (Block block : blocks) {
-			block.breakNaturally();
+			checkBreak(block);
 		}
 		this.map.clear();
+	}
+
+	private void checkBreak(Block block) {
+		// Compatible with lockette
+		if (!block.getType().name().contains("SIGN")) {
+			block.breakNaturally();
+		}
 	}
 
 	@EventHandler

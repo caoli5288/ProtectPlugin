@@ -22,7 +22,7 @@ import org.bukkit.entity.Player;
 
 import com.mengcraft.bukkit.protect.manager.BannedIPSManager;
 import com.mengcraft.bukkit.protect.manager.PlayerRecordManager;
-import com.mengcraft.bukkit.protect.manager.TickPerSecondManager;
+import com.mengcraft.bukkit.protect.manager.TickPSManager;
 import com.mengcraft.bukkit.protect.util.TimeUtil;
 import com.mengcraft.common.util.OptionParser;
 import com.mengcraft.common.util.OptionParser.FilterMode;
@@ -255,7 +255,7 @@ public class Commands implements CommandExecutor {
 
 	private String getRecentTickPS() {
 		StringBuilder builder = new StringBuilder();
-		List<Double> recent = TickPerSecondManager.getManager().getTps();
+		List<Double> recent = TickPSManager.getManager().getTps();
 		for (int i = 0; i < recent.size(); i++) {
 			if (i > 0) {
 				builder.append(ChatColor.WHITE);

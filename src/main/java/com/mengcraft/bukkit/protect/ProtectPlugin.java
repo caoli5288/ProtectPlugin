@@ -15,7 +15,7 @@ import com.mengcraft.bukkit.protect.anti.AntiOverload;
 import com.mengcraft.bukkit.protect.anti.AntiRedClock;
 import com.mengcraft.bukkit.protect.manager.BannedIPSManager;
 import com.mengcraft.bukkit.protect.manager.PlayerRecordManager;
-import com.mengcraft.bukkit.protect.manager.TickPerSecondManager;
+import com.mengcraft.bukkit.protect.manager.TickPSManager;
 
 public class ProtectPlugin extends JavaPlugin {
 
@@ -81,7 +81,7 @@ public class ProtectPlugin extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(new AntiOverload(), this);
 			Bukkit.getPluginManager().registerEvents(PluginKiller.getKiller().getEvents(), this);
 			Bukkit.getPluginManager().registerEvents(PlayerRecordManager.getManager().getEvents(), this);
-			Bukkit.getScheduler().runTaskTimer(this, TickPerSecondManager.getManager().getTask(), 1200, 1200);
+			Bukkit.getScheduler().runTaskTimer(this, TickPSManager.getManager().getTask(), 1200, 1200);
 			Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 			Bukkit.getScheduler().runTaskTimer(this, disk, 0, 18000);
 			getLogger().info("监控硬盘空间等已开启");
