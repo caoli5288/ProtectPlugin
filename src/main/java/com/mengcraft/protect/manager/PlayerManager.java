@@ -112,7 +112,7 @@ public class PlayerManager {
 				event.setResult(Result.KICK_BANNED);
 			} else if (checkLoginTime(host, time)) {
 				event.setKickMessage("请勿频繁尝试登陆服务器");
-				event.setResult(Result.KICK_BANNED);
+				event.setResult(Result.KICK_OTHER);
 			} else if (checkLastTime(time)) {
 				event.setKickMessage("当前登陆高峰请稍后尝试");
 				event.setResult(Result.KICK_OTHER);

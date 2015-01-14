@@ -73,7 +73,7 @@ public class ProtectPlugin extends JavaPlugin {
 			getLogger().info("防止爆炸毁地图已开启");
 		}
 		getServer().getPluginManager().registerEvents(PlayerManager.getManager().getEvents(), this);
-		Bukkit.getPluginManager().registerEvents(new AntiOverload(), this);
+		Bukkit.getPluginManager().registerEvents(new AntiOverload(this), this);
 		Bukkit.getPluginManager().registerEvents(getKiller().getEvents(), this);
 		Bukkit.getScheduler().runTaskTimer(this, TickManager.getManager().getTask(), 1200, 1200);
 		Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
