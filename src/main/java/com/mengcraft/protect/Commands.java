@@ -75,7 +75,7 @@ public class Commands implements CommandExecutor {
 				} else if (option.has("rate")) {
 					rate = -1;
 				}
-				if (rate < 0) {
+				if (rate < -1) {
 					sender.sendMessage(ChatColor.RED + "不正确的限制值");
 				} else if (option.has("world") && Bukkit.getWorld(option.getString("world")) != null) {
 					sender.sendMessage(purgeEntity(Bukkit.getWorld(option.getString("world")), option.getString("purge"), rate));
