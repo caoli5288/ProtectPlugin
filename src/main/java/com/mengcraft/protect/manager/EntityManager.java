@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -61,7 +62,11 @@ public class EntityManager {
 	public int purgeEntity(World world, String type, int limit) {
 		int count = 0;
 		for (Entity entity : world.getEntities()) {
-			if (entity.getType().name().equals(type)) {
+			if (entity instanceof Player) {
+				// Do not purge any player!
+			} else if (type.equals("ALL")) {
+				count += checkPurge(entity, limit);
+			} else if (entity.getType().name().equals(type)) {
 				count += checkPurge(entity, limit);
 			}
 		}
