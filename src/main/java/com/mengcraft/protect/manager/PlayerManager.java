@@ -118,6 +118,7 @@ public class PlayerManager {
 				event.setResult(Result.KICK_OTHER);
 			} else {
 				PlayerManager.this.updateRecord(name, host, time);
+				this.addressTime.put("LAST", time);
 			}
 			this.addressTime.put(host, time);
 		}
