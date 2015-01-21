@@ -22,7 +22,7 @@ import com.mengcraft.common.util.OptionParser;
 import com.mengcraft.common.util.OptionParser.FilterMode;
 import com.mengcraft.common.util.OptionParser.ParsedOption;
 import com.mengcraft.protect.manager.EntityManager;
-import com.mengcraft.protect.manager.PlayerManager;
+import com.mengcraft.protect.manager.PlayerRecordManager;
 import com.mengcraft.protect.manager.SegmentManager;
 import com.mengcraft.protect.manager.TickManager;
 import com.mengcraft.protect.util.TimeUtils;
@@ -112,7 +112,7 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(ChatColor.RED + "错误的参数");
 			} else if (option.has("ban") && option.has("unban")) {
 				sender.sendMessage(ChatColor.RED + "错误的参数");
-			} else if (option.has("ban") && PlayerManager.getManager().hasPlayer(option.getString("ban"))) {
+			} else if (option.has("ban") && PlayerRecordManager.getManager().hasPlayer(option.getString("ban"))) {
 				int rate = 2;
 				if (option.has("rate") && option.isInteger("rate")) {
 					rate = option.getInteger("rate");
@@ -322,7 +322,7 @@ public class Commands implements CommandExecutor {
 
 	private String ban(String name, int rate, int time) {
 		long until = System.currentTimeMillis() + time * TimeUtils.TIME_DAY;
-		String addr = PlayerManager.getManager().getAddress(name);
+		String addr = PlayerRecordManager.getManager().getAddress(name);
 		SegmentManager.getManager().createRecord(addr, rate, until);
 		SegmentManager.getManager().saveLines();
 		filterOnline();

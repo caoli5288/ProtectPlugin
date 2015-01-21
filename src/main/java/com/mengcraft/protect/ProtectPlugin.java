@@ -10,8 +10,9 @@ import org.mcstats.Metrics;
 import com.mengcraft.protect.listener.AntiBreakFarm;
 import com.mengcraft.protect.listener.AntiExplosion;
 import com.mengcraft.protect.listener.AntiOverload;
+import com.mengcraft.protect.listener.PlayerLoginHandler;
 import com.mengcraft.protect.manager.EntityManager;
-import com.mengcraft.protect.manager.PlayerManager;
+import com.mengcraft.protect.manager.PlayerRecordManager;
 import com.mengcraft.protect.manager.RedstoneManager;
 import com.mengcraft.protect.manager.TickManager;
 import com.mengcraft.protect.task.ModifySpigot;
@@ -72,9 +73,9 @@ public class ProtectPlugin extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(new AntiExplosion(), this);
 			getLogger().info("防止爆炸毁地图已开启");
 		}
-		getServer().getPluginManager().registerEvents(PlayerManager.getManager().getEvents(), this);
 		Bukkit.getPluginManager().registerEvents(new AntiOverload(this), this);
 		Bukkit.getPluginManager().registerEvents(getKiller().getEvents(), this);
+		getServer().getPluginManager().registerEvents(new PlayerLoginHandler(), this);
 		Bukkit.getScheduler().runTaskTimer(this, TickManager.getManager().getTask(), 1200, 1200);
 		Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 		getLogger().info("监控硬盘空间等已开启");
@@ -91,7 +92,7 @@ public class ProtectPlugin extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		PlayerManager.getManager().saveRecords();
+		PlayerRecordManager.getManager().saveRecords();
 	}
 
 	public PluginKiller getKiller() {
