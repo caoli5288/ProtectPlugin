@@ -15,6 +15,7 @@ import com.mengcraft.protect.manager.EntityManager;
 import com.mengcraft.protect.manager.PlayerRecordManager;
 import com.mengcraft.protect.manager.RedstoneManager;
 import com.mengcraft.protect.manager.TickManager;
+import com.mengcraft.protect.task.CheckAddrCount;
 import com.mengcraft.protect.task.ModifySpigot;
 import com.mengcraft.protect.task.ReBirth;
 import com.mengcraft.protect.task.Restart;
@@ -76,6 +77,7 @@ public class ProtectPlugin extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new AntiOverload(this), this);
 		Bukkit.getPluginManager().registerEvents(getKiller().getEvents(), this);
 		getServer().getPluginManager().registerEvents(new PlayerLoginHandler(), this);
+		getServer().getScheduler().runTaskTimer(this, new CheckAddrCount(this), 40, 40);
 		Bukkit.getScheduler().runTaskTimer(this, TickManager.getManager().getTask(), 1200, 1200);
 		Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 		getLogger().info("监控硬盘空间等已开启");
