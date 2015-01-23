@@ -12,6 +12,7 @@ public class CheckAddrCount implements Runnable {
 
 	private final StringMap<Integer> map = DataHandler.getHandler().getAddrCount();
 	private final Plugin plugin;
+	private final BanIpCommand banner = new BanIpCommand();
 
 	// Check every 1 second.
 	@Override
@@ -30,7 +31,7 @@ public class CheckAddrCount implements Runnable {
 	}
 
 	private void ban(String... key) {
-		new BanIpCommand().execute(this.plugin.getServer().getConsoleSender(), null, key);
+		this.banner.execute(this.plugin.getServer().getConsoleSender(), null, key);
 		this.plugin.getLogger().warning("检测 " + key[0] + " 过多登陆请求而封禁");
 	}
 

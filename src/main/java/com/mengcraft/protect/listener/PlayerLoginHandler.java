@@ -7,7 +7,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
-import org.bukkit.event.server.ServerListPingEvent;
 
 import com.mengcraft.protect.manager.DataHandler;
 import com.mengcraft.protect.manager.SegmentManager;
@@ -25,11 +24,6 @@ public class PlayerLoginHandler implements Listener {
 		if (event.getLoginResult().equals(Result.ALLOWED)) {
 			work(event);
 		}
-	}
-
-	@EventHandler
-	public void ping(ServerListPingEvent event) {
-		checkIncreases(event.getAddress());
 	}
 
 	private void work(AsyncPlayerPreLoginEvent event) {
