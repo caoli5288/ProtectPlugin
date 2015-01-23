@@ -7,7 +7,10 @@ import java.io.InputStream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.defaults.SaveOffCommand;
+import org.bukkit.plugin.InvalidDescriptionException;
+import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
@@ -103,26 +106,27 @@ public class ProtectPlugin extends JavaPlugin {
 		String name = getServer().getClass().getName();
 		if (name.startsWith("org.bukkit.craftbukkit.v1_7_R1")) {
 			File file = getResourceFile("injector-1.7.2.module");
-			try {
-				getServer().getPluginManager().loadPlugin(file);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			Plugin plugin = getServer().getPluginManager().getPlugin("Injector");
-			getServer().getPluginManager().enablePlugin(plugin);
+			enablePlugin(file);
 			getLogger().info("防发包测压蹦服已开启");
 		} else if (name.startsWith("org.bukkit.craftbukkit.v1_7_R4")) {
 			File file = getResourceFile("injector-1.7.10.module");
-			try {
-				getServer().getPluginManager().loadPlugin(file);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			Plugin plugin = getServer().getPluginManager().getPlugin("Injector");
-			getServer().getPluginManager().enablePlugin(plugin);
+			enablePlugin(file);
 			getLogger().info("防发包测压蹦服已开启");
 		} else {
 			getLogger().info("没有适合版本的防发包");
+		}
+	}
+
+	private void enablePlugin(File file) {
+		try {
+			Plugin plugin = getServer().getPluginManager().loadPlugin(file);
+			getServer().getPluginManager().enablePlugin(plugin);
+		} catch (UnknownDependencyException e) {
+			e.printStackTrace();
+		} catch (InvalidPluginException e) {
+			e.printStackTrace();
+		} catch (InvalidDescriptionException e) {
+			e.printStackTrace();
 		}
 	}
 
