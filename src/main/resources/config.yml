@@ -1,3 +1,7 @@
+sendpacket:
+  # This option prevent send packets attack.
+  use: true
+
 redclock:
   # This option remove  pulsing red stone circuit automatic
   # The value is how many change count in one second

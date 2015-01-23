@@ -13,7 +13,7 @@ public class CheckAddrCount implements Runnable {
 	private final StringMap<Integer> map = DataHandler.getHandler().getAddrCount();
 	private final Plugin plugin;
 
-	// Check every 2 second.
+	// Check every 1 second.
 	@Override
 	public void run() {
 		StringMap<Integer> map = this.map;

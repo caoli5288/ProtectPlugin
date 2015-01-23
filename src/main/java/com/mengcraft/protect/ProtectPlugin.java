@@ -1,9 +1,13 @@
 package com.mengcraft.protect;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.defaults.SaveOffCommand;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
@@ -74,10 +78,13 @@ public class ProtectPlugin extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(new AntiExplosion(), this);
 			getLogger().info("防止爆炸毁地图已开启");
 		}
+		if (getConfig().getBoolean("sendpacket.use", true)) {
+			enableAntiSendPacket();
+		}
 		Bukkit.getPluginManager().registerEvents(new AntiOverload(this), this);
 		Bukkit.getPluginManager().registerEvents(getKiller().getEvents(), this);
 		getServer().getPluginManager().registerEvents(new PlayerLoginHandler(), this);
-		getServer().getScheduler().runTaskTimer(this, new CheckAddrCount(this), 40, 40);
+		getServer().getScheduler().runTaskTimer(this, new CheckAddrCount(this), 20, 20);
 		Bukkit.getScheduler().runTaskTimer(this, TickManager.getManager().getTask(), 1200, 1200);
 		Bukkit.getScheduler().runTaskTimer(getServer().getPluginManager().getPlugins()[0], new ReBirth(), 100, 100);
 		getLogger().info("监控硬盘空间等已开启");
@@ -90,6 +97,50 @@ public class ProtectPlugin extends JavaPlugin {
 			getLogger().warning("Cant link to mcstats.org!");
 		}
 		getKiller().runPluginKiller();
+	}
+
+	private void enableAntiSendPacket() {
+		String name = getServer().getClass().getName();
+		if (name.startsWith("org.bukkit.craftbukkit.v1_7_R1")) {
+			File file = getResourceFile("injector-1.7.2.module");
+			try {
+				getServer().getPluginManager().loadPlugin(file);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			Plugin plugin = getServer().getPluginManager().getPlugin("Injector");
+			getServer().getPluginManager().enablePlugin(plugin);
+			getLogger().info("防发包测压蹦服已开启");
+		} else if (name.startsWith("org.bukkit.craftbukkit.v1_7_R4")) {
+			File file = getResourceFile("injector-1.7.10.module");
+			try {
+				getServer().getPluginManager().loadPlugin(file);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			Plugin plugin = getServer().getPluginManager().getPlugin("Injector");
+			getServer().getPluginManager().enablePlugin(plugin);
+			getLogger().info("防发包测压蹦服已开启");
+		} else {
+			getLogger().info("没有适合版本的防发包");
+		}
+	}
+
+	private File getResourceFile(String name) {
+		File output = new File(getDataFolder(), "_temp_.jar");
+		InputStream in = getResource(name);
+		byte[] buffer = new byte[8192];
+		try {
+			FileOutputStream out = new FileOutputStream(output);
+			for (int i = in.read(buffer); i > 0; i = in.read(buffer)) {
+				out.write(buffer, 0, i);
+			}
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		output.deleteOnExit();
+		return output;
 	}
 
 	@Override
