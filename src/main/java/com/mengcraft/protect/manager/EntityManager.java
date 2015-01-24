@@ -113,6 +113,9 @@ public class EntityManager {
 		public void onCreatureSpawn(CreatureSpawnEvent event) {
 			int i = check(event.getEntity(), this.limit);
 			event.setCancelled(i > 0);
+			if (i > 0) {
+				event.setCancelled(true);
+			}
 		}
 
 	}
