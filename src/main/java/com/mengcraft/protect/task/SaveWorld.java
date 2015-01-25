@@ -2,74 +2,36 @@ package com.mengcraft.protect.task;
 
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
 
 public class SaveWorld implements Runnable {
 
 	private int x = 0;
-	private int y = 0;
-	private int z = 0;
+
+	private final Plugin plugin;
 
 	/**
 	 * unload chunks must be in main thread!
 	 */
 	@Override
 	public void run() {
-		List<World> worlds = Bukkit.getWorlds();
-		if (getX() >= worlds.size()) {
-			setX(0);
+		List<World> worlds = this.plugin.getServer().getWorlds();
+		if (worlds.size() <= this.x) {
+			this.x = 0;
 		}
-		Chunk[] chunks = worlds.get(this.x).getLoadedChunks();
+		World world = worlds.get(this.x);
+		Chunk[] chunks = world.getLoadedChunks();
 		for (Chunk chunk : chunks) {
 			chunk.unload(true, true);
 		}
-		new Thread(new SaveWorldTask(getX())).start();
-		setX(getX() + 1);
+		world.save();
+		this.x += 1;
 	}
 
-	private int getX() {
-		return x;
+	public SaveWorld(Plugin plugin) {
+		this.plugin = plugin;
 	}
 
-	private void setX(int x) {
-		this.x = x;
-	}
-
-	public int getY() {
-		return y;
-	}
-
-	public void setY(int y) {
-		this.y = y;
-	}
-
-	public int getZ() {
-		return z;
-	}
-
-	public void setZ(int z) {
-		this.z = z;
-	}
-
-	private class SaveWorldTask implements Runnable {
-		private final int count;
-
-		public SaveWorldTask(int x) {
-			this.count = x;
-		}
-
-		@Override
-		public void run() {
-			Bukkit.getWorlds().get(getCount()).save();
-			if (getCount() < 1) {
-				Bukkit.savePlayers();
-			}
-		}
-
-		public int getCount() {
-			return count;
-		}
-	}
 }

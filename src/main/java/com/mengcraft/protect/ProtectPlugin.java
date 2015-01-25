@@ -59,7 +59,7 @@ public class ProtectPlugin extends JavaPlugin {
 		if (getConfig().getBoolean("saveworld.use", true)) {
 			long delay = getConfig().getLong("saveworld.value", 60) * 20;
 			new SaveOffCommand().execute(getServer().getConsoleSender(), null, null);
-			getServer().getScheduler().runTaskTimer(this, new SaveWorld(), delay, delay);
+			getServer().getScheduler().runTaskTimer(this, new SaveWorld(this), delay, delay);
 			getKiller().addName("AutoSaveWorld");
 			getKiller().addName("AutoSave");
 			getKiller().addName("NoSpawnChunks");
