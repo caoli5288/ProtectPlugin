@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -90,8 +91,10 @@ public class SegmentManager {
 		File file = new File("banned-ip-segments.txt");
 		FileWriter out = new FileWriter(file);
 		BufferedWriter writer = new BufferedWriter(out);
-		for (Segment segment : this.segments.values()) {
-			writer.write(segment.toString());
+		Collection<Segment> values = this.segments.values();
+		for (Segment segment : values) {
+			String record = segment.toString();
+			writer.write(record + "\n");
 		}
 		writer.close();
 	}
@@ -146,7 +149,7 @@ public class SegmentManager {
 	}
 
 	private class Segment {
-		
+
 		private final String host;
 		private final int limit;
 		private final byte[] segment;
