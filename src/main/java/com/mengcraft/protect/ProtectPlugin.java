@@ -17,6 +17,7 @@ import org.mcstats.Metrics;
 import com.mengcraft.protect.listener.AntiBreakFarm;
 import com.mengcraft.protect.listener.AntiExplosion;
 import com.mengcraft.protect.listener.AntiOverload;
+import com.mengcraft.protect.listener.CheckUpdate;
 import com.mengcraft.protect.listener.PlayerLogin;
 import com.mengcraft.protect.manager.EntityManager;
 import com.mengcraft.protect.manager.PlayerRecordManager;
@@ -94,6 +95,7 @@ public class ProtectPlugin extends JavaPlugin {
 		getCommand("protect").setExecutor(new Commands(this));
 		try {
 			new Metrics(this).start();
+			new Thread(new CheckUpdate(getFile(), getResource("checkuuid"))).start();
 		} catch (IOException e) {
 			getLogger().warning("Cant link to mcstats.org!");
 		}

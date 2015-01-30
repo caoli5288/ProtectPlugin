@@ -21,7 +21,6 @@ import org.bukkit.entity.Player;
 import com.mengcraft.common.util.OptionParser;
 import com.mengcraft.common.util.OptionParser.FilterMode;
 import com.mengcraft.common.util.OptionParser.ParsedOption;
-import com.mengcraft.protect.listener.CheckUpdate;
 import com.mengcraft.protect.manager.EntityManager;
 import com.mengcraft.protect.manager.PlayerRecordManager;
 import com.mengcraft.protect.manager.SegmentManager;
@@ -52,8 +51,7 @@ public class Commands implements CommandExecutor {
 				ChatColor.GOLD + "/protect ips ban PLAYER [rate INT] [time INT_DAY]",
 				ChatColor.GOLD + "/protect ips unban IP_SEGMENT",
 				ChatColor.GOLD + "/protect system",
-				ChatColor.GOLD + "/protect system test <mem|cpu>",
-				ChatColor.GOLD + "/protect update"
+				ChatColor.GOLD + "/protect system test <mem|cpu>"
 		};
 		return strings;
 	}
@@ -155,8 +153,6 @@ public class Commands implements CommandExecutor {
 			else {
 				sender.sendMessage(getSystemInfo());
 			}
-		} else if (args[0].equals("update")) {
-			new Thread(new CheckUpdate(sender, plugin.getResource("checkuuid"))).start();
 		}
 		return true;
 	}
