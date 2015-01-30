@@ -23,17 +23,17 @@ public class CheckUpdate implements Runnable {
 			reader.read(buffer);
 			String cache = new String(buffer);
 			sender.sendMessage(ChatColor.GREEN + "本地版本序列: " + cache);
-			
-			URL url = new URL("http://ci.mengcraft.com:8080/job/ProtectPlugin/ws/src/main/resources/checksum");
+			// This file created by jenkins.
+			URL url = new URL("http://ci.mengcraft.com:8080/job/ProtectPlugin/ws/src/main/resources/checkuuid");
 			new InputStreamReader(url.openStream(), "UTF-8").read(buffer);
 			String remote = new String(buffer);
 			sender.sendMessage(ChatColor.GREEN + "远程版本序列: " + remote);
-			
+
 			if (cache.equals(remote)) {
 				sender.sendMessage(ChatColor.GREEN + "你使用的ProtectPlugin是最新版！");
 			} else {
 				sender.sendMessage(ChatColor.GREEN + "你使用的ProtectPlugin不是最新版！");
-				sender.sendMessage(ChatColor.GREEN + "为了避免不必要的问题请及时升级插件！");
+				sender.sendMessage(ChatColor.GREEN + "当前版本不支持自动更新请手动下载更新！");
 			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

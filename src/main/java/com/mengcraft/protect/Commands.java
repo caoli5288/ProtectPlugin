@@ -156,7 +156,7 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(getSystemInfo());
 			}
 		} else if (args[0].equals("update")) {
-			new Thread(new CheckUpdate(sender, plugin.getResource("checksum"))).start();
+			new Thread(new CheckUpdate(sender, plugin.getResource("checkuuid"))).start();
 		}
 		return true;
 	}
