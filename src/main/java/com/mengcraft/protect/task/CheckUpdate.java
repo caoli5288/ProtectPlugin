@@ -54,6 +54,8 @@ public class CheckUpdate implements Runnable {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("[PP] 找到更新但自动更新在该系统不可用请手动更新");
 		}
 	}
 
