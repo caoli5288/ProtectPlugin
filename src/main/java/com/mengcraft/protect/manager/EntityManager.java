@@ -19,7 +19,7 @@ public class EntityManager {
 	public Map<String, Integer> getEntityInfo(World world) {
 		Map<String, Integer> map = new HashMap<>();
 		for (Entity entity : world.getEntities()) {
-			addCount(map, entity.getType().name());
+			addCount(map, entity.getType().name().toUpperCase());
 		}
 		return map;
 	}
@@ -66,7 +66,7 @@ public class EntityManager {
 				// Do not purge any player!
 			} else if (type.equals("ALL")) {
 				count += checkPurge(entity, limit);
-			} else if (entity.getType().name().equals(type)) {
+			} else if (entity.getType().name().toUpperCase().equals(type)) {
 				count += checkPurge(entity, limit);
 			}
 		}
@@ -83,7 +83,7 @@ public class EntityManager {
 
 	public int check(Entity entity, int limit) {
 		List<Entity> entities = entity.getNearbyEntities(16, 16, 16);
-		CheckBox box = new CheckBox(entity.getType().name());
+		CheckBox box = new CheckBox(entity.getType().name().toUpperCase());
 		for (Entity e : entities) {
 			box.check(e);
 		}
@@ -125,7 +125,7 @@ public class EntityManager {
 		private int result = 0;
 
 		public void check(Entity entity) {
-			if (entity.getType().name().equals(this.type)) {
+			if (entity.getType().name().toUpperCase().equals(this.type)) {
 				this.result++;
 			}
 		}
