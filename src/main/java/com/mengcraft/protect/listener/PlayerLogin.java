@@ -13,6 +13,8 @@ import com.mengcraft.protect.util.StringMap;
 
 public class PlayerLogin implements Listener {
 
+	private final static String LOCAL_HOST = "127.0.0.1";
+
 	private final SegmentManager segment = SegmentManager.getManager();
 	private final StringMap<Long> addrLast = new StringMap<>();
 
@@ -28,6 +30,8 @@ public class PlayerLogin implements Listener {
 		if (this.segment.contains(addr)) {
 			event.setLoginResult(Result.KICK_BANNED);
 			event.setKickMessage("您的IP已被服务器封禁");
+		} else if (addr.getHostAddress().equals(LOCAL_HOST)) {
+			// DO NOTHING
 		} else if (checkAddr(addr.getHostAddress())) {
 			event.setLoginResult(Result.KICK_OTHER);
 			event.setKickMessage("请稍后尝试登陆服务器");
