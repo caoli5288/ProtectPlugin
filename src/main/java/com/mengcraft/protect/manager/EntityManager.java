@@ -19,7 +19,7 @@ public class EntityManager {
 	public Map<String, Integer> getEntityInfo(World world) {
 		Map<String, Integer> map = new HashMap<>();
 		for (Entity entity : world.getEntities()) {
-			addCount(map, entity.getType().name().toUpperCase());
+			addCount(map, entity.getType().name());
 		}
 		return map;
 	}
