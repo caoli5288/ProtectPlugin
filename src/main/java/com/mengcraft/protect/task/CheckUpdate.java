@@ -7,8 +7,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+
+import com.mengcraft.protect.util.IOUtils;
 
 public class CheckUpdate implements Runnable {
 
@@ -48,14 +48,12 @@ public class CheckUpdate implements Runnable {
 	private void update() {
 		try {
 			URL url = new URL("http://ci.mengcraft.com:8080/job/ProtectPlugin/lastSuccessfulBuild/artifact/target/protect-0.3.0-SNAPSHOT.jar");
-			Files.copy(url.openStream(), this.file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			IOUtils.copyFileFromStream(url.openStream(), this.file);
 			System.out.println("[ProtectPlugin] Upgrade done!");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (Exception e) {
-			System.out.println("[PP] 找到更新但自动更新在该系统不可用请手动更新");
 		}
 	}
 
