@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
 import com.mengcraft.protect.listener.AntiBreakFarm;
+import com.mengcraft.protect.listener.AntiCopyItem;
 import com.mengcraft.protect.listener.AntiExplosion;
 import com.mengcraft.protect.listener.AntiOverload;
 import com.mengcraft.protect.listener.PlayerLogin;
@@ -84,6 +85,7 @@ public class ProtectPlugin extends JavaPlugin {
 		if (getConfig().getBoolean("sendpacket.use", true)) {
 			enableAntiSendPacket();
 		}
+		getServer().getPluginManager().registerEvents(new AntiCopyItem(), this);
 		Bukkit.getPluginManager().registerEvents(new AntiOverload(this), this);
 		Bukkit.getPluginManager().registerEvents(getKiller().getEvents(), this);
 		getServer().getPluginManager().registerEvents(new PlayerLogin(), this);
