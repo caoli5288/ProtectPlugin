@@ -1,10 +1,12 @@
-name: ${project.name}
-version: ${project.version}
-main: ${project.groupId}.${project.artifactId}.${project.name}
+name: ProtectPlugin
+version: 0.3.0-SNAPSHOT
+main: com.mengcraft.protect.Protect
+
 commands:
   protect:
     description: Admin command for this.
     permission: server.admin
+    
 permissions:
   server.admin:
      description: Admin permission for this.
