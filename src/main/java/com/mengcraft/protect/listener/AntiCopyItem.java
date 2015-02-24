@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 public class AntiCopyItem implements Listener {
@@ -19,6 +20,14 @@ public class AntiCopyItem implements Listener {
 				event.setCancelled(true);
 				event.getPlayer().sendMessage(ChatColor.RED + "你无法破坏正在被使用的箱子");
 			}
+		}
+	}
+
+	@EventHandler
+	public void handle(EntityPortalEvent event) {
+		String type = event.getEntity().getType().name();
+		if (type.contains("MINECART")) {
+			event.setCancelled(true);
 		}
 	}
 
