@@ -29,7 +29,7 @@ import com.mengcraft.protect.util.TimeUtils;
 
 public class Commands implements CommandExecutor {
 
-	private final ProtectPlugin plugin;
+	private final Protect plugin;
 
 	private final static int SIZE_MB_INT = 1048576;
 	private final static byte BYTE_ZERO = 0;
@@ -37,7 +37,7 @@ public class Commands implements CommandExecutor {
 	private long cpu = 0L;
 	private final ExecutorService pool = Executors.newCachedThreadPool();
 
-	public Commands(ProtectPlugin protect) {
+	public Commands(Protect protect) {
 		this.plugin = protect;
 	}
 

@@ -17,6 +17,7 @@ import org.mcstats.Metrics;
 import com.mengcraft.protect.listener.AntiBreakFarm;
 import com.mengcraft.protect.listener.AntiCopyItem;
 import com.mengcraft.protect.listener.AntiExplosion;
+import com.mengcraft.protect.listener.AntiInfinityItem;
 import com.mengcraft.protect.listener.AntiOverload;
 import com.mengcraft.protect.listener.PlayerLogin;
 import com.mengcraft.protect.manager.EntityManager;
@@ -29,7 +30,7 @@ import com.mengcraft.protect.task.ReBirth;
 import com.mengcraft.protect.task.Restart;
 import com.mengcraft.protect.task.SaveWorld;
 
-public class ProtectPlugin extends JavaPlugin {
+public class Protect extends JavaPlugin {
 
 	private final PluginKiller killer = PluginKiller.getKiller();
 
@@ -86,6 +87,7 @@ public class ProtectPlugin extends JavaPlugin {
 			enableAntiSendPacket();
 		}
 		getServer().getPluginManager().registerEvents(new AntiCopyItem(), this);
+		getServer().getPluginManager().registerEvents(new AntiInfinityItem(), this);
 		Bukkit.getPluginManager().registerEvents(new AntiOverload(this), this);
 		Bukkit.getPluginManager().registerEvents(getKiller().getEvents(), this);
 		getServer().getPluginManager().registerEvents(new PlayerLogin(), this);
