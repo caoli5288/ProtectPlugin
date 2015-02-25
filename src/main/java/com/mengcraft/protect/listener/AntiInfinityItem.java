@@ -16,14 +16,14 @@ public class AntiInfinityItem implements Listener {
 	public void handle(InventoryClickEvent event) {
 		if (event.getClick() != ClickType.NUMBER_KEY) {
 			ItemStack stack = event.getCurrentItem();
-			if (stack != null && stack.getAmount() < 1) {
+			if (stack != null && stack.getAmount() < 0) {
 				event.setCancelled(true);
 				event.setCurrentItem(AIR);
 			}
 		} else {
 			int i = event.getHotbarButton();
 			ItemStack stack = event.getWhoClicked().getInventory().getItem(i);
-			if (stack != null && stack.getAmount() < 1) {
+			if (stack != null && stack.getAmount() < 0) {
 				event.setCancelled(true);
 				event.getWhoClicked().getInventory().setItem(i, AIR);
 			}
@@ -32,7 +32,7 @@ public class AntiInfinityItem implements Listener {
 
 	@EventHandler
 	public void handle(ItemSpawnEvent event) {
-		if (event.getEntity().getItemStack().getAmount() < 1) {
+		if (event.getEntity().getItemStack().getAmount() < 0) {
 			event.setCancelled(true);
 		}
 	}
