@@ -1,19 +1,22 @@
 package com.mengcraft.protect.task;
 
-import org.bukkit.Bukkit;
+import org.bukkit.Server;
 
 public class Restart implements Runnable {
 
 	private final int limit;
+	private final Server server;
 
-	public Restart(int limit) {
+	public Restart(Server server, int limit) {
+		this.server = server;
 		this.limit = limit;
 	}
 
 	@Override
 	public void run() {
-		if (Bukkit.getOnlinePlayers().length <= this.limit) {
-			Bukkit.shutdown();
+		if (server.getOnlinePlayers().length <= this.limit) {
+			server.dispatchCommand(server.getConsoleSender(), "save-all");
+			server.shutdown();
 		}
 	}
 }

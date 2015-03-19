@@ -51,7 +51,7 @@ public class Protect extends JavaPlugin {
 		if (getConfig().getBoolean("restart.use", true)) {
 			long delay = getConfig().getLong("restart.value", 24) * 72000;
 			int limit = getConfig().getInt("restart.limit", 0);
-			Bukkit.getScheduler().runTaskTimer(this, new Restart(limit), delay, 6000);
+			Bukkit.getScheduler().runTaskTimer(this, new Restart(this.getServer(), limit), delay, 6000);
 			getLogger().info("智能重启服务器已开启");
 		}
 		if (getConfig().getBoolean("keepfarm.use", true)) {
